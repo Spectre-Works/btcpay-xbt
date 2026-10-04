@@ -1,7 +1,6 @@
 using BTCPayServer.Abstractions.Models;
 using BTCPayServer.Hosting;
 using BTCPayServer.Payments;
-using BTCPayServer.Payments.Lightning;
 using BTCPayServer.Payments.Bitcoin;
 using BTCPayServer.Services;
 using BTCPayServer.Services.Rates;
@@ -18,14 +17,15 @@ public sealed class XbtPlugin : BaseBTCPayServerPlugin
     public static readonly string[] RateRules = {
         "XBT_BTCB2 = 1;",
         "BTCB2_XBT = 1;",
-        "BTCB2_X = BTCB2_XBT * XBT_X;",
         "XBT_XBTSATS = 100000000;",
+        "XBT_USDC = neoxex(XBT_USDC);",
+        "XBT_USD = XBT_USDC * kraken(USDC_USD);",
+        "BTCB2_X = BTCB2_XBT * XBT_X;",
         "XBTSATS_X = XBTSATS_XBT * XBT_X;",
-        "XBT_X = neoxex(XBT_X);"
     };
     public override string Identifier => "Paperclip.XbtLightning";
-    public override string Name => "Paperclip XBT (test)";
-    public override string Description => "Bitcoin BLAKE2b on-chain and Lightning checkout. Not audited.";
+    public override string Name => "XBT";
+    public override string Description => "Bitcoin BLAKE2b on-chain receiving. Watch-only; server-side spending is not supported.";
 
     public override void Execute(IServiceCollection services)
     {
@@ -36,9 +36,9 @@ public sealed class XbtPlugin : BaseBTCPayServerPlugin
         {
             CryptoCode = "XBT", DisplayName = "Bitcoin BLAKE2b",
             NBXplorerNetwork = nbx,
-            CryptoImagePath = "imlegacy/paperclip.svg", LightningImagePath = "imlegacy/paperclip.svg",
+            CryptoImagePath = "imlegacy/paperclip.svg",
             DefaultSettings = BTCPayDefaultSettings.GetDefaultSettings(nbx.NBitcoinNetwork.ChainName),
-            WalletSupported = true, ReadonlyWallet = true, SupportLightning = true, ShowSyncSummary = true,
+            WalletSupported = true, ReadonlyWallet = true, SupportLightning = false, ShowSyncSummary = true,
             CoinType = nbx.CoinType, SupportPayJoin = false, SupportRBF = false, VaultSupported = false,
             DefaultRateRules = RateRules
         };
@@ -55,13 +55,6 @@ public sealed class XbtPlugin : BaseBTCPayServerPlugin
         services.AddCurrencyData(new CurrencyData { Code = "XBT", Name = "Bitcoin BLAKE2b", Divisibility = 8, Crypto = true, Symbol = "XBT" });
         services.AddCurrencyData(new CurrencyData { Code = "BTCB2", Name = "Bitcoin BLAKE2b (XBT)", Divisibility = 8, Crypto = true, Symbol = "BTCB2" });
         services.AddCurrencyData(new CurrencyData { Code = SatsCurrency, Name = "XBT sats", Divisibility = 0, Crypto = true, Symbol = "XBT sats" });
-        services.AddCurrencyData(new CurrencyData { Code = "USDC", Name = "USD Coin (pricing only)", Divisibility = 6, Crypto = true, Symbol = "USDC" });
         services.AddRateProvider<NeoxExRateProvider>();
-        var pmi = PaymentTypes.LN.GetPaymentMethodId("XBT");
-        services.AddDefaultPrettyName(pmi, "XBT Lightning (BLAKE2b)");
-        services.AddSingleton<IPaymentMethodHandler>(p => ActivatorUtilities.CreateInstance<LightningLikePaymentHandler>(p, network, pmi));
-        services.AddSingleton<IPaymentLinkExtension>(p => ActivatorUtilities.CreateInstance<LightningPaymentLinkExtension>(p, network, pmi));
-        services.AddSingleton<ICheckoutModelExtension>(p => ActivatorUtilities.CreateInstance<LNCheckoutModelExtension>(p, network, pmi));
-        services.AddSingleton<IPaymentMethodBitpayAPIExtension>(p => ActivatorUtilities.CreateInstance<LightningPaymentMethodBitpayAPIExtension>(p, pmi));
     }
 }

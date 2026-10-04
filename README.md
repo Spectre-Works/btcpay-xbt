@@ -1,177 +1,96 @@
-# Paperclip XBT for BTCPay Server
+# XBT on-chain receiving for BTCPay Server
 
-**Beta · Not independently audited · Receiving integration**
+Accept Bitcoin BLAKE2b (**XBT/BTCB2**) on-chain with BTCPay Server using a watch-only merchant wallet and your own XBT Knots node.
 
-Accept Bitcoin BLAKE2b (**XBT**, also known as **BTCB2**) on-chain and over
-Lightning in BTCPay Server, with **Core Lightning (CLN) or LND** as the
-Lightning backend. Choose on-chain, Lightning, or both per store.
+This build is deliberately narrow:
 
-This repository contains the plugin source, a restricted CLN invoice gateway,
-an LND connection helper, the XBT NBXplorer changes, and build scripts against
-pinned upstream releases.
-**It is not a drop-in `.btcpay` plugin for a stock BTCPay installation.** XBT's
-block format and separate network identity require the included core/client
-patches. Do not install the plugin DLL alone into an existing production server.
+- Mainnet only.
+- On-chain receiving only; no Lightning.
+- No server-side spending, payouts, or spending refunds from the BTCPay wallet.
+- No private keys stored by BTCPay Server or NBXplorer.
+- No PayJoin or hardware-wallet signing.
 
-## Features
+It is **not** a drop-in `.btcpay` plugin for stock BTCPay Server. XBT uses an 80-byte header before block 961640 and a 164-byte header-v2 with BLAKE2b block IDs from block 961640. The included NBXplorer and client patches are therefore required.
 
-- XBT on-chain receiving with per-invoice addresses and confirmation tracking.
-- BOLT11 Lightning checkout using **CLN or LND**. The CLN gateway includes
-  private-channel route hints; LND connects through its native REST API.
-- Independent **on-chain** and **Lightning** switches under
-  **Integrations → XBT payments**. They affect new invoices, not existing orders.
-- Invoice currencies **XBT**, **BTCB2** (exactly 1 XBT), and **XBTSATS**
-  (100,000,000 sats per XBT). Payment methods retain canonical IDs
-  `XBT-CHAIN` and `XBT-LN`; BTCB2 is an alternate pricing ticker.
-- Optional USDC pricing from NeoxEX's BTCB2/USDC pair, with stale/invalid quote
-  checks. No implicit USDC/USD peg or SHA-256 BTC price fallback.
-- Watch-only receiving wallet setup. Spending keys belong in compatible XBT
-  wallet software. On-chain sending, PayJoin and hardware signing are disabled.
+## Payment flow
+
+```text
+Customer creates order in USD
+        ↓
+BTCPay gets XBT/USD from NeoxEX XBT/USDC × Kraken USDC/USD
+        ↓
+BTCPay creates an XBT on-chain invoice
+        ↓
+fresh address is derived from the merchant account public key
+        ↓
+customer broadcasts the XBT payment
+        ↓
+NBXplorer detects the transaction in the mempool
+        ↓
+BTCPay shows Processing
+        ↓
+required confirmation count is reached
+        ↓
+BTCPay shows Settled
+```
+
+Merchant invoice denominations include USD, XBT, BTCB2 (a 1:1 pricing alias for XBT), and XBTSATS (exactly 100,000,000 per XBT). USDC is only an internal pricing bridge. There is no BTC pricing fallback.
 
 ## Requirements
 
-- Linux, Git, Python 3, Docker Engine and Docker Compose v2; builds require
-  internet access and several GB of available memory and disk space.
-- Your own synced XBT Knots backend, reachable over authenticated RPC and P2P.
-  Mainnet's XBT fork checkpoint is checked before indexing. An unpruned node
-  with txindex was used for testing. Pruned historical recovery is not validated.
-- For Lightning, your own XBT node with required BLAKE2b bit 512 and unified
-  signature capability 514/515: **Core Lightning** (tested with
-  `v26.06.8-blake2b.5`) or **LND** (tested with `0.21.3-beta-blake2b.14` from
-  [paulscode/lightning-fork](https://github.com/paulscode/lightning-fork)).
-  Receiving Lightning requires a funded channel with inbound liquidity.
-- A dedicated XBT merchant wallet account public key, or a backed-up watch-only
-  wallet created through BTCPay. **Do not import a SHA-256 BTC wallet.**
-
-Pinned sources: BTCPay Server **2.4.4**, NBXplorer **2.6.13**. Exact revisions
-are in [upstream.json](upstream.json). Mainnet is the supported deployment target.
-
-## Lightning backend compatibility
-
-| Backend | Connection | Verified status |
-| --- | --- | --- |
-| **CLN** `v26.06.8-blake2b.5` | Included invoice-only Unix-socket gateway | Invoice creation and a paid Lightning checkout verified |
-| **LND** `0.21.3-beta-blake2b.14` | Native LND REST with restricted macaroon and pinned TLS certificate | Node checks, macaroon permissions and invoice creation verified; a received Lightning payment remains to be tested |
-
-Both backends require XBT-compatible forks with the feature bits described above.
-Stock SHA-256 Bitcoin CLN/LND nodes are not compatible. Choose one backend per
-installation; receiving payments requires inbound channel liquidity.
+- Docker Compose for deployment and Docker for the build.
+- A synced, externally operated XBT Knots mainnet node reachable by authenticated RPC and P2P. A SHA-256 BTC backend is rejected at the fork checkpoint.
+- A dedicated XBT merchant account public key/xpub backed up in compatible external wallet software.
+- PostgreSQL, supplied by the included Compose stack.
 
 ## Build
 
 ```sh
-git clone https://github.com/connorslab/paperclip-btcpay-xbt.git
-cd paperclip-btcpay-xbt
 sh scripts/build.sh
 ```
 
-The script prepares upstream source under `.build`, applies the included patches,
-runs focused tests, builds the custom NBXplorer client package, and creates:
+The build fetches pinned BTCPay Server and NBXplorer revisions into `.build`, applies the patches, runs the focused XBT tests, packages the custom NBXplorer client, and builds two images:
 
 - `paperclip-btcpay:xbt-beta`
 - `paperclip-nbxplorer:xbt-beta`
-- `paperclip-cln-gateway:xbt-beta`
 
-Use `sh scripts/build.sh --test-only` to omit image builds. If sources change,
-move the affected generated `.build/btcpay` or `.build/nbxplorer` directory aside
-and rerun. Source preparation refuses to overwrite differing checkouts.
+Use `sh scripts/build.sh --test-only` to stop after the test/package phase.
 
-## Start an isolated installation
-
-The example is for a **new installation**, not an automatic migration of an
-existing BTCPay database. Back up existing services before adapting it.
-
-1. Copy `.env.example` to `.env`, fill in the Knots connection and choose a new
-   database password (`openssl rand -hex 32`). For CLN, keep `COMPOSE_PROFILES=cln`,
-   leave `XBT_LIGHTNING` empty and set the CLN public ID and RPC socket path.
-   For LND, follow [the LND setup below](#lightning-with-lnd-instead-of-cln).
-   Keep `.env` private (`chmod 600 .env`). No defaults contain working credentials.
-2. Create writable app directories:
-   `mkdir -p data/btcpay data/nbxplorer && sudo chown -R 1000:1000 data/btcpay data/nbxplorer`.
-3. **CLN only:** Give the gateway's supplemental `CLN_RPC_GID` group read/write access to the
-   CLN socket. Mount the socket **file**, never the node's keys/data directory.
-4. Run `docker compose up -d`. Only BTCPay is published, on
-   `127.0.0.1:23000`; database, indexer and gateway have no published ports.
-5. Open `http://localhost:23000`, create your administrator account and store.
-   Connect the internal Lightning node and/or import your XBT wallet's account
-   public key. Compare the sample receiving addresses with your wallet.
-6. Set the desired payment switches and create a small invoice. Confirm actual
-   receipt in your wallet/node before relying on automated settlement.
-
-New indexers start at the current tip. An existing wallet needs a historical
-rescan to show old transactions. Keep wallet recovery words and configuration
-backups; the watch-only server cannot recover lost spending keys.
-
-**CLN only:** The socket-file mount avoids exposing CLN keys. If CLN recreates its RPC socket
-after restarting, recreate the gateway with
-`docker compose up -d --force-recreate gateway` to bind the new socket.
-
-For LAN/remote access, use an authenticated, trusted HTTPS reverse proxy to
-BTCPay, forwarding the original host and `X-Forwarded-Proto`. Camera scanning
-requires a secure browser context and camera permission. Self-signed certificates
-must be explicitly trusted on each device. Do not bypass browser TLS validation.
-
-## Lightning with LND instead of CLN
-
-BTCPay talks to LND natively, so LND needs no gateway. A restricted macaroon
-limits access to node information and invoice operations, but does not filter
-invoices by ownership as the CLN gateway does. `scripts/lnd-connection.sh` checks that the node
-is a synced XBT LND node (bit 512 required, 514/515 present; it refuses a stock
-SHA-256 node, as the CLN gateway does), bakes a macaroon limited to `info:read`,
-`invoices:read` and `invoices:write` under its own root key id, and prints the
-connection string with the node's pinned TLS certificate thumbprint:
+## Configure and run
 
 ```sh
-LNCLI="docker exec lnd lncli --network mainnet" \
-LND_REST=https://host.docker.internal:8080 \
-LND_TLS_CERT=/path/to/lnd/tls.cert \
-sh scripts/lnd-connection.sh
+cp .env.example .env
 ```
 
-In `.env`, set `COMPOSE_PROFILES=` (empty, so the CLN gateway is not started) and
-replace the `XBT_LIGHTNING=` line with the complete line printed by the helper. BTCPay reaches the node's REST port from its
-container through `host.docker.internal`; the node's TLS certificate must include
-the name or address used in `LND_REST` (`tlsextraip` / `tlsextradomain` in
-`lnd.conf`). The macaroon cannot pay, manage channels, move on-chain funds or read
-the seed. Unlike the CLN gateway it does not hide the node's other invoices from
-BTCPay; use a node dedicated to the store if that matters.
+Set a strong PostgreSQL password and the RPC/P2P details for the external XBT node.
 
-Each run selects a random nonzero root key ID and checks that it is unused.
-An explicit `ROOT_KEY_ID` must also be unused; existing IDs are rejected. Do not
-reuse the printed ID for other credentials. LND has no atomic reserve-ID operation,
-so coordinate explicit IDs between administrators. Invalid certificates stop setup
-before any credential is baked. Revoke this credential with
-`lncli deletemacaroonid <root key id>`.
+Before the first start, create the bind-mount directories with ownership matching the application containers:
 
-## Safety and limitations
+```sh
+mkdir -p data/btcpay data/nbxplorer
+sudo chown -R 1000:1000 data/btcpay data/nbxplorer
+docker compose up -d
+```
 
-The CLN gateway allows invoice operations and limited status reads, and rejects
-spending, channel management and secret extraction. It checks the configured
-node identity and feature bits before creating invoices. It includes private-hop
-hints; invoice holders can therefore see the receiving peer. Gateway access is
-instance-wide: this is not isolation between mutually untrusted BTCPay operators.
+BTCPay is published at `127.0.0.1:23000`. PostgreSQL and NBXplorer are not published to the host.
 
-On-chain transaction signing with XBT's unified signature rules is **not**
-implemented here. On-chain spending, refunds and payouts must use compatible
-external XBT software. Do not assume Bitcoin hardware wallets support XBT.
-Merchant BOLT12 checkout is not implemented.
+In BTCPay, create a store, open **Integrations → XBT payments**, enable on-chain XBT, and connect the dedicated wallet using its account public key. Verify the first derived receiving address against the same derivation in known-compatible XBT wallet or Knots tooling before accepting funds.
 
-A paid CLN Lightning checkout and real-chain indexing have been verified. The
-LND contribution also reports a paid on-chain checkout settling after one
-confirmation; see the review notes. A received Lightning payment through LND
-and an induced reorg test remain outstanding.
-The engineering review is **not an independent security audit**; see
-[review and test notes](docs/REVIEW.md). Use small amounts while evaluating.
+## Security boundary
 
-## Layout
+BTCPay and NBXplorer remain watch-only for XBT. The integration refuses hot-wallet/private-key generation and NBXplorer private-key storage/import. It registers no XBT payout handler and no XBT Lightning payment method. External XBT-compatible wallet software is responsible for signing and spending, including any merchant refund.
 
-- `src/`: plugin, UI, logo and focused C# tests.
-- `patches/btcpay.patch`: required BTCPay integration changes.
-- `patches/nbxplorer.patch`: XBT header hashing, chain identity and tests.
-- `gateway/`: invoice-only CLN Unix-socket adapter and tests.
-- `scripts/`: reproducible source preparation and build entry point.
-- `.github/workflows/build.yml`: clean build/test checks.
+The backend identity check reads block 961640 and requires:
 
-No private deployments, node credentials, TLS private keys, wallets or local
-test administrator setup scripts are distributed. MIT licensed; see
-[third-party notices](THIRD_PARTY_NOTICES.md).
+```text
+0000000000000050c1e5f69672f459293be14f46e5a494e7a8c8541396f18eeb
+```
+
+## Repository layout
+
+- `src/`: XBT BTCPay plugin and focused tests copied into the pinned source tree.
+- `patches/nbxplorer.patch`: XBT header serialization/hashing, chain identity, watch-only restrictions, and tests.
+- `patches/btcpay.patch`: BTCPay integration and receive-only safety changes.
+- `scripts/prepare.py`: reproducible pinned-source preparation.
+- `scripts/build.sh`: tests, package creation, and the two application images.
+- `docs/REVIEW.md`: validation record and remaining acceptance work.

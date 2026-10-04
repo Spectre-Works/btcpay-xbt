@@ -19,19 +19,16 @@ public class XbtTests
         Assert.False(provider.Support("XBT"));
     }
     [Theory]
-    [InlineData(false, false)]
-    [InlineData(false, true)]
-    [InlineData(true, false)]
-    [InlineData(true, true)]
-    public void PaymentMethodsToggleIndependently(bool chain, bool lightning)
+    [InlineData(false)]
+    [InlineData(true)]
+    public void SettingsToggleOnlyOnChain(bool chain)
     {
         var blob = new Data.StoreBlob();
         var other = Payments.PaymentTypes.CHAIN.GetPaymentMethodId("BTC");
         blob.SetExcluded(other, true);
-        new XbtSettings { OnChainEnabled = chain, LightningEnabled = lightning }.Apply(blob);
+        new XbtSettings { OnChainEnabled = chain }.Apply(blob);
         var read = XbtSettings.From(blob);
         Assert.Equal(chain, read.OnChainEnabled);
-        Assert.Equal(lightning, read.LightningEnabled);
         Assert.True(blob.IsExcluded(other));
     }
     [Fact]
@@ -42,8 +39,7 @@ public class XbtTests
             new Services.Rates.InMemoryCurrencyDataProvider(new[] {
                 new Services.Rates.CurrencyData { Code = "XBT", Name = "Bitcoin BLAKE2b", Crypto = true },
                 new Services.Rates.CurrencyData { Code = "BTCB2", Name = "Bitcoin BLAKE2b (XBT)", Crypto = true },
-                new Services.Rates.CurrencyData { Code = "XBTSATS", Name = "XBT sats", Crypto = true },
-                new Services.Rates.CurrencyData { Code = "USDC", Name = "USD Coin", Crypto = true }
+                new Services.Rates.CurrencyData { Code = "XBTSATS", Name = "XBT sats", Crypto = true }
             })
         }, Microsoft.Extensions.Logging.Abstractions.NullLogger<Services.Rates.CurrencyNameTable>.Instance);
         await table.ReloadCurrencyData(default);
@@ -59,7 +55,7 @@ public class XbtTests
         Assert.Contains("value=\"XBTSATS\">XBTSATS - XBT sats</option>", html);
         Assert.Contains("value=\"XBT\">", html);
         Assert.Contains("value=\"BTCB2\">", html);
-        Assert.Contains("value=\"USDC\">", html);
+        Assert.DoesNotContain("value=\"USDC\">", html);
     }
 
     [Fact]
@@ -91,6 +87,27 @@ public class XbtTests
         Assert.Equal(0.00000001m, btcSats.BidAsk.Bid);
     }
 
+    [Fact]
+    public void UsdPricingUsesNeoxExUsdcAndKrakenWithoutBtc()
+    {
+        var rules = Rating.RateRules.Parse(string.Join("\n", XbtPlugin.RateRules));
+        var rule = rules.GetRuleFor(new Rating.CurrencyPair("XBT", "USD"));
+        rule.ExchangeRates.SetRate("neoxex", Rating.CurrencyPair.Parse("XBT_USDC"), new Rating.BidAsk(400m));
+        rule.ExchangeRates.SetRate("kraken", Rating.CurrencyPair.Parse("USDC_USD"), new Rating.BidAsk(0.999m, 1.001m));
+        Assert.True(rule.Reevaluate());
+        Assert.Equal(399.6m, rule.BidAsk.Bid);
+        Assert.Equal(400.4m, rule.BidAsk.Ask);
+        Assert.DoesNotContain("BTC", rule.ToString());
+    }
+
+    [Fact]
+    public void XbtBtcHasNoImplicitAliasRule()
+    {
+        var rules = Rating.RateRules.Parse(string.Join("\n", XbtPlugin.RateRules));
+        var rule = rules.GetRuleFor(new Rating.CurrencyPair("XBT", "BTC"));
+        Assert.False(rule.Reevaluate());
+    }
+
     static JObject Quote(DateTimeOffset now) => JObject.FromObject(new {
         success = true, pair = "BTCB2_USDC", ticker = new { lastPrice = 400m, computedAt = now.ToUnixTimeMilliseconds() }
     });
@@ -110,7 +127,11 @@ public class XbtTests
         Assert.Throws<FormatException>(() => NeoxExRateProvider.Parse(Quote(now.AddMinutes(2)),now));
         var quote = Quote(now); quote["pair"] = "BTC_USDC";
         Assert.Throws<FormatException>(() => NeoxExRateProvider.Parse(quote,now));
+        quote = Quote(now); quote["success"] = false;
+        Assert.Throws<FormatException>(() => NeoxExRateProvider.Parse(quote,now));
         quote = Quote(now); quote["ticker"]!["lastPrice"] = 0;
+        Assert.Throws<FormatException>(() => NeoxExRateProvider.Parse(quote,now));
+        quote = Quote(now); quote["ticker"]!["lastPrice"] = -1;
         Assert.Throws<FormatException>(() => NeoxExRateProvider.Parse(quote,now));
     }
 }

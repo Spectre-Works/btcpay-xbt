@@ -13,15 +13,12 @@ namespace BTCPayServer.Plugins.Xbt;
 public class XbtSettings
 {
     public bool OnChainEnabled { get; set; }
-    public bool LightningEnabled { get; set; }
     public static XbtSettings From(StoreBlob blob) => new() {
-        OnChainEnabled = !blob.IsExcluded(PaymentTypes.CHAIN.GetPaymentMethodId("XBT")),
-        LightningEnabled = !blob.IsExcluded(PaymentTypes.LN.GetPaymentMethodId("XBT"))
+        OnChainEnabled = !blob.IsExcluded(PaymentTypes.CHAIN.GetPaymentMethodId("XBT"))
     };
     public void Apply(StoreBlob blob)
     {
         blob.SetExcluded(PaymentTypes.CHAIN.GetPaymentMethodId("XBT"), !OnChainEnabled);
-        blob.SetExcluded(PaymentTypes.LN.GetPaymentMethodId("XBT"), !LightningEnabled);
     }
 }
 

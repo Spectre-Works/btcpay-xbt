@@ -70,7 +70,7 @@ index a134184..ff3d217 100644
  
      private async Task<string> ReadAllText(IFormFile file)
 diff --git a/BTCPayServer/TagHelpers/CurrenciesSuggestionsTagHelper.cs b/BTCPayServer/TagHelpers/CurrenciesSuggestionsTagHelper.cs
-index 9f7375d..69fba9e 100644
+index 9f7375d..d53eae0 100644
 --- a/BTCPayServer/TagHelpers/CurrenciesSuggestionsTagHelper.cs
 +++ b/BTCPayServer/TagHelpers/CurrenciesSuggestionsTagHelper.cs
 @@ -25,6 +25,14 @@ namespace BTCPayServer.TagHelpers
@@ -79,7 +79,7 @@ index 9f7375d..69fba9e 100644
              output.PostElement.AppendHtml("<option value=\"SATS\">SATS - Satoshi</option>");
 +            // Plugin currencies are excluded from the fiat list above. Include the
 +            // XBT pricing units only when the plugin has registered them.
-+            foreach (var code in new[] { "XBT", "BTCB2", "XBTSATS", "USDC" })
++            foreach (var code in new[] { "XBT", "BTCB2", "XBTSATS" })
 +            {
 +                var currency = _currencies.GetCurrencyData(code, false);
 +                if (currency is null) continue;
