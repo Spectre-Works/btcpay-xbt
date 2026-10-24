@@ -244,10 +244,10 @@ index 0000000..4c903db
 \ No newline at end of file
 diff --git a/NBXplorer.Tests/XbtTests.cs b/NBXplorer.Tests/XbtTests.cs
 new file mode 100644
-index 0000000..1e89b78
+index 0000000..4a54fc5
 --- /dev/null
 +++ b/NBXplorer.Tests/XbtTests.cs
-@@ -0,0 +1,68 @@
+@@ -0,0 +1,82 @@
 +using System.IO;
 +using System.Linq;
 +using NBitcoin;
@@ -259,6 +259,20 @@ index 0000000..1e89b78
 +
 +public class XbtTests
 +{
++    [Theory]
++    [InlineData("XBT", true)]
++    [InlineData("BTC", false)]
++    public void PeerHandshakeAdvertisesBlake2bOnlyForXbt(string cryptoCode, bool expected)
++    {
++        var parameters = new NBitcoin.Protocol.NodeConnectionParameters
++        {
++            Services = NBitcoin.Protocol.NodeServices.NODE_WITNESS
++        };
++        NBXplorer.Backend.XbtPeerCapabilities.Configure(parameters, cryptoCode);
++        Assert.Equal(expected, (parameters.Services & NBXplorer.Backend.XbtPeerCapabilities.Blake2b) != 0);
++        Assert.True((parameters.Services & NBitcoin.Protocol.NodeServices.NODE_WITNESS) != 0);
++    }
++
 +    [Fact]
 +    public void FullBlockMatchesKnotsAndMerkleRoot()
 +    {
@@ -336,3 +350,36 @@ index a1086e2..a186cff 100644
  			var capabilities = await rpcClient.ScanRPCCapabilitiesAsync(cancellation);
  			if (capabilities.Version < networkInfo.MinRPCVersion)
  			{
+diff --git a/NBXplorer/Backend/Indexer.cs b/NBXplorer/Backend/Indexer.cs
+index adc95aa..4f55d87 100644
+--- a/NBXplorer/Backend/Indexer.cs
++++ b/NBXplorer/Backend/Indexer.cs
+@@ -278,6 +278,7 @@ namespace NBXplorer.Backend
+ 					ConnectCancellation = handshakeTimeout.Token,
+ 					IsRelay = true
+ 				};
++				XbtPeerCapabilities.Configure(nodeParams, Network.CryptoCode);
+ 				if (ExplorerConfiguration.SocksEndpoint != null)
+ 				{
+ 					var socks = new SocksSettingsBehavior()
+diff --git a/NBXplorer/Backend/XbtPeerCapabilities.cs b/NBXplorer/Backend/XbtPeerCapabilities.cs
+new file mode 100644
+index 0000000..48c8d36
+--- /dev/null
++++ b/NBXplorer/Backend/XbtPeerCapabilities.cs
+@@ -0,0 +1,15 @@
++using NBitcoin.Protocol;
++
++namespace NBXplorer.Backend;
++
++public static class XbtPeerCapabilities
++{
++    // Knots gates post-fork headers on NODE_BLAKE2B (src/protocol.h).
++    public const NodeServices Blake2b = (NodeServices)(1UL << 28);
++
++    public static void Configure(NodeConnectionParameters parameters, string cryptoCode)
++    {
++        if (cryptoCode == "XBT")
++            parameters.Services |= Blake2b;
++    }
++}

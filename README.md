@@ -56,6 +56,38 @@ The build fetches pinned BTCPay Server and NBXplorer revisions into `.build`, ap
 
 Use `sh scripts/build.sh --test-only` to stop after the test/package phase.
 
+## Knots RC5 compatibility and ARM64 deployment
+
+XBT peer handshakes advertise Knots' NODE_BLAKE2B bit (1 << 28).
+RC5 limits post-fork header delivery to peers advertising this capability;
+without it, RPC can report the current chain while the payment indexer stalls.
+The flag is applied only to XBT and preserves existing service flags.
+
+To compile only NBXplorer for an ARM64 node on a workstation:
+
+```sh
+sh scripts/prepare-nbxplorer-arm64.sh
+```
+
+If the cached NBXplorer source has an older patch fingerprint, remove the
+disposable `.build/nbxplorer` directory and rerun. Copy the resulting
+`.build/nbxplorer-arm64.tar.gz` to the ARM64 node, extract it, and build the
+runtime image there:
+
+```sh
+mkdir -p /path/to/build-context
+tar -xzf nbxplorer-arm64.tar.gz -C /path/to/build-context
+docker build --network host -t paperclip-nbxplorer:rc5-arm64 /path/to/build-context
+```
+
+Use host networking for the runtime-image build on nodes whose firewall disables
+Docker bridge forwarding. Select the new image in the deployment Compose file,
+then recreate only NBXplorer with `docker-compose up -d --no-deps nbxplorer`.
+The BTCPay application and PostgreSQL do not need rebuilding or replacement.
+Verify the peer's BLAKE2B service flag, `isFullySynched: true`, and
+`syncHeight == chainHeight` after indexing advances past the previous tip.
+Container health and successful RPC alone do not establish indexing progress.
+
 ## Configure and run
 
 ```sh

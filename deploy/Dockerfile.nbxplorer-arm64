@@ -1,0 +1,8 @@
+FROM --platform=linux/arm64 mcr.microsoft.com/dotnet/aspnet:10.0.11-noble
+WORKDIR /app
+RUN apt-get update && apt-get install -y --no-install-recommends curl && rm -rf /var/lib/apt/lists/*
+RUN mkdir /datadir
+ENV NBXPLORER_DATADIR=/datadir
+VOLUME /datadir
+COPY app/ .
+ENTRYPOINT ["dotnet", "NBXplorer.dll"]

@@ -40,6 +40,10 @@ def prepare(name, settings):
     stamp.write_text(expected)
 
 if __name__ == '__main__':
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument('projects', nargs='*', choices=['btcpay', 'nbxplorer'])
+    args = parser.parse_args()
     manifest = json.loads((ROOT / 'upstream.json').read_text())
-    for name in ['btcpay', 'nbxplorer']:
+    for name in args.projects or ['btcpay', 'nbxplorer']:
         prepare(name, manifest[name])
