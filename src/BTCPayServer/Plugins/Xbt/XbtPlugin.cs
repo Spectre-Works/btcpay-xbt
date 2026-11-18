@@ -36,7 +36,7 @@ public sealed class XbtPlugin : BaseBTCPayServerPlugin
         {
             CryptoCode = "XBT", DisplayName = "Bitcoin BLAKE2b",
             NBXplorerNetwork = nbx,
-            CryptoImagePath = "imlegacy/paperclip.svg",
+            CryptoImagePath = "imlegacy/btc2010logo.png",
             DefaultSettings = BTCPayDefaultSettings.GetDefaultSettings(nbx.NBitcoinNetwork.ChainName),
             WalletSupported = true, ReadonlyWallet = true, SupportLightning = false, ShowSyncSummary = true,
             CoinType = nbx.CoinType, SupportPayJoin = false, SupportRBF = false, VaultSupported = false,
