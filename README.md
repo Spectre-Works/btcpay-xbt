@@ -36,6 +36,14 @@ BTCPay shows Settled
 
 Merchant invoice denominations include USD, XBT, BTCB2 (a 1:1 pricing alias for XBT), and XBTSATS (exactly 100,000,000 per XBT). USDC is only an internal pricing bridge. There is no BTC pricing fallback.
 
+Hosted XBT checkout provides copy buttons for the address and amount. XBT and
+SHA-256 BTC share address encodings and the `bitcoin:` URI scheme, so the XBT
+payment method suppresses the wallet link and payment QR. Instruct customers to
+select Bitcoin BLAKE2b (XBT/BTCB2) in their wallet before sending.
+An invoice-reader Greenfield key can query the invoice's `xbt-chain` endpoint
+for indexed outputs and current confirmations on the verified XBT chain. The
+endpoint keeps using the original account and address after invoice expiration.
+
 ## Requirements
 
 - Docker Compose for deployment and Docker for the build.

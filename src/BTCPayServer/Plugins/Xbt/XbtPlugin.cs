@@ -45,10 +45,11 @@ public sealed class XbtPlugin : BaseBTCPayServerPlugin
         network.SetDefaultElectrumMapping(nbx.NBitcoinNetwork.ChainName);
         services.AddBTCPayNetwork((BTCPayNetworkBase)network);
         services.AddUIExtension("store-integrations-nav", "/Plugins/Xbt/Views/Nav.cshtml");
+        services.AddUIExtension("checkout-bitcoin-pre-content", "/Plugins/Xbt/Views/CopyPaymentInstructions.cshtml");
         var onchain = PaymentTypes.CHAIN.GetPaymentMethodId("XBT");
         services.AddDefaultPrettyName(onchain, "XBT on-chain (BLAKE2b)");
         services.AddSingleton<IPaymentMethodHandler>(p => ActivatorUtilities.CreateInstance<BitcoinLikePaymentHandler>(p, network, onchain));
-        services.AddSingleton<IPaymentLinkExtension>(p => ActivatorUtilities.CreateInstance<BitcoinPaymentLinkExtension>(p, network, onchain));
+        services.AddSingleton<IPaymentLinkExtension>(new XbtCopyPaymentLink(onchain));
         services.AddSingleton<ICheckoutModelExtension>(p => ActivatorUtilities.CreateInstance<BitcoinCheckoutModelExtension>(p, network, onchain));
         services.AddSingleton<IPaymentMethodBitpayAPIExtension>(p => ActivatorUtilities.CreateInstance<BitcoinPaymentMethodBitpayAPIExtension>(p, onchain));
         services.AddTransactionLinkProvider(onchain, new DefaultTransactionLinkProvider("https://mempool.guide/tx/{0}"));

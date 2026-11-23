@@ -18,6 +18,18 @@ public class XbtTests
         Assert.Null(provider.GetNetwork("xbt"));
         Assert.False(provider.Support("XBT"));
     }
+
+    [Fact]
+    public void XbtProvidesNoWalletUriForTheSharedBitcoinAddressFormat()
+    {
+        var id = Payments.PaymentTypes.CHAIN.GetPaymentMethodId("XBT");
+        var network = new NBXplorer.NBXplorerNetworkProvider(NBitcoin.ChainName.Mainnet)
+            .GetFromCryptoCode("XBT").NBitcoinNetwork;
+        Assert.Equal(NBitcoin.Network.Main.UriScheme, network.UriScheme);
+        var link = new XbtCopyPaymentLink(id);
+        Assert.Equal(id, link.PaymentMethodId);
+        Assert.Null(link.GetPaymentLink(new Services.Invoices.PaymentPrompt(), null));
+    }
     [Theory]
     [InlineData(false)]
     [InlineData(true)]
