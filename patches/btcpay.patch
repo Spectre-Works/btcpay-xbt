@@ -1,5 +1,18 @@
+diff --git a/BTCPayServer.Client/BTCPayServer.Client.csproj b/BTCPayServer.Client/BTCPayServer.Client.csproj
+index 9ca903273..98047eaa3 100644
+--- a/BTCPayServer.Client/BTCPayServer.Client.csproj
++++ b/BTCPayServer.Client/BTCPayServer.Client.csproj
+@@ -31,7 +31,7 @@
+   </ItemGroup>
+     <ItemGroup>
+       <PackageReference Include="BTCPayServer.Lightning.Common" Version="1.7.5" />
+-      <PackageReference Include="NBitcoin" Version="10.0.19" />
++      <PackageReference Include="NBitcoin" Version="10.0.20" />
+       <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
+     </ItemGroup>
+   <ItemGroup>
 diff --git a/BTCPayServer.Common/BTCPayNetworkProvider.cs b/BTCPayServer.Common/BTCPayNetworkProvider.cs
-index 7134774..88b2e1e 100644
+index 7134774e8..88b2e1e7f 100644
 --- a/BTCPayServer.Common/BTCPayNetworkProvider.cs
 +++ b/BTCPayServer.Common/BTCPayNetworkProvider.cs
 @@ -57,8 +57,8 @@ namespace BTCPayServer
@@ -14,23 +27,49 @@ index 7134774..88b2e1e 100644
              return network as T;
          }
 diff --git a/BTCPayServer.Common/BTCPayServer.Common.csproj b/BTCPayServer.Common/BTCPayServer.Common.csproj
-index d51e26f..5ededf9 100644
+index 8761146c9..ab4ffff2c 100644
 --- a/BTCPayServer.Common/BTCPayServer.Common.csproj
 +++ b/BTCPayServer.Common/BTCPayServer.Common.csproj
 @@ -2,7 +2,7 @@
    <Import Project="../Build/Version.csproj" Condition="Exists('../Build/Version.csproj')" />
    <Import Project="../Build/Common.csproj" />
    <ItemGroup>
--    <PackageReference Include="NBXplorer.Client" Version="5.0.8" />
-+    <PackageReference Include="NBXplorer.Client" Version="5.0.9-xbt.1" />
+-    <PackageReference Include="NBXplorer.Client" Version="5.0.12" />
++    <PackageReference Include="NBXplorer.Client" Version="5.0.12-xbt.2" />
      <PackageReference Include="NicolasDorier.StandardConfiguration" Version="2.0.1" />
    </ItemGroup>
  </Project>
+diff --git a/BTCPayServer.Rating/BTCPayServer.Rating.csproj b/BTCPayServer.Rating/BTCPayServer.Rating.csproj
+index 37989811b..941491af1 100644
+--- a/BTCPayServer.Rating/BTCPayServer.Rating.csproj
++++ b/BTCPayServer.Rating/BTCPayServer.Rating.csproj
+@@ -6,7 +6,7 @@
+     <FrameworkReference Include="Microsoft.AspNetCore.App" />
+     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="5.9.0" />
+     <PackageReference Include="Microsoft.AspNet.WebApi.Client" Version="6.0.0" />
+-    <PackageReference Include="NBitcoin" Version="10.0.19" />
++    <PackageReference Include="NBitcoin" Version="10.0.20" />
+     <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
+     <PackageReference Include="DigitalRuby.ExchangeSharp" Version="1.2.1" />
+   </ItemGroup>
+diff --git a/BTCPayServer/BTCPayServer.csproj b/BTCPayServer/BTCPayServer.csproj
+index 5574a6bfb..3c8361536 100644
+--- a/BTCPayServer/BTCPayServer.csproj
++++ b/BTCPayServer/BTCPayServer.csproj
+@@ -34,7 +34,7 @@
+       <PrivateAssets>all</PrivateAssets>
+       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+     </PackageReference>
+-    <PackageReference Include="NBitcoin" Version="10.0.19" />
++    <PackageReference Include="NBitcoin" Version="10.0.20" />
+     <PackageReference Include="YamlDotNet" Version="18.1.0" />
+     <PackageReference Include="BIP78.Sender" Version="0.2.5" />
+     <PackageReference Include="BTCPayServer.Hwi" Version="2.0.6" />
 diff --git a/BTCPayServer/Configuration/DefaultConfiguration.cs b/BTCPayServer/Configuration/DefaultConfiguration.cs
-index 370db7d..480dd8e 100644
+index 3bc235b71..5fc82f945 100644
 --- a/BTCPayServer/Configuration/DefaultConfiguration.cs
 +++ b/BTCPayServer/Configuration/DefaultConfiguration.cs
-@@ -166,6 +166,9 @@ namespace BTCPayServer.Configuration
+@@ -170,6 +170,9 @@ namespace BTCPayServer.Configuration
              var p2 = new Plugins.Altcoins.AltcoinsPlugin();
              p2.Execute(services);
  
@@ -41,7 +80,7 @@ index 370db7d..480dd8e 100644
              services.AddSingleton(services.BootstrapServices.GetRequiredService<NBXplorerNetworkProvider>());
              services.AddSingleton(services.BootstrapServices.GetRequiredService<Logs>());
 diff --git a/BTCPayServer/Plugins/Wallets/Controllers/GreenfieldStoreOnChainPaymentMethodsController.WalletGeneration.cs b/BTCPayServer/Plugins/Wallets/Controllers/GreenfieldStoreOnChainPaymentMethodsController.WalletGeneration.cs
-index 223fae0..c16103c 100644
+index b8fa37c9d..195eedfec 100644
 --- a/BTCPayServer/Plugins/Wallets/Controllers/GreenfieldStoreOnChainPaymentMethodsController.WalletGeneration.cs
 +++ b/BTCPayServer/Plugins/Wallets/Controllers/GreenfieldStoreOnChainPaymentMethodsController.WalletGeneration.cs
 @@ -27,6 +27,8 @@ namespace BTCPayServer.Controllers.Greenfield
@@ -54,10 +93,10 @@ index 223fae0..c16103c 100644
              if (!walletProvider.IsAvailable(network))
              {
 diff --git a/BTCPayServer/Plugins/Wallets/Controllers/UIStoreOnChainWalletsController.cs b/BTCPayServer/Plugins/Wallets/Controllers/UIStoreOnChainWalletsController.cs
-index a134184..ff3d217 100644
+index e265e8403..674a63e37 100644
 --- a/BTCPayServer/Plugins/Wallets/Controllers/UIStoreOnChainWalletsController.cs
 +++ b/BTCPayServer/Plugins/Wallets/Controllers/UIStoreOnChainWalletsController.cs
-@@ -779,7 +779,10 @@ public class UIStoreOnChainWalletsController(
+@@ -778,7 +778,10 @@ public class UIStoreOnChainWalletsController(
  
      private async Task<WalletCreationPermissions> CanUseHotWallet()
      {
@@ -70,7 +109,7 @@ index a134184..ff3d217 100644
  
      private async Task<string> ReadAllText(IFormFile file)
 diff --git a/BTCPayServer/TagHelpers/CurrenciesSuggestionsTagHelper.cs b/BTCPayServer/TagHelpers/CurrenciesSuggestionsTagHelper.cs
-index 9f7375d..d53eae0 100644
+index 9f7375d76..d53eae0d0 100644
 --- a/BTCPayServer/TagHelpers/CurrenciesSuggestionsTagHelper.cs
 +++ b/BTCPayServer/TagHelpers/CurrenciesSuggestionsTagHelper.cs
 @@ -25,6 +25,14 @@ namespace BTCPayServer.TagHelpers
@@ -89,10 +128,10 @@ index 9f7375d..d53eae0 100644
              int pos = 0;
              InsertAt(currencies, "USD", pos++);
 diff --git a/Dockerfile b/Dockerfile
-index 6dc8726..2bc3bc8 100644
+index 3e01a8474..e5ee5870b 100644
 --- a/Dockerfile
 +++ b/Dockerfile
-@@ -2,6 +2,7 @@ FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:10.0.400-noble AS bu
+@@ -2,6 +2,7 @@ FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:10.0.403-noble AS bu
  ENV DOTNET_CLI_TELEMETRY_OPTOUT=1
  WORKDIR /source
  COPY nuget.config nuget.config
@@ -101,7 +140,7 @@ index 6dc8726..2bc3bc8 100644
  COPY BTCPayServer.Abstractions/BTCPayServer.Abstractions.csproj BTCPayServer.Abstractions/BTCPayServer.Abstractions.csproj
  COPY BTCPayServer/BTCPayServer.csproj BTCPayServer/BTCPayServer.csproj
 diff --git a/nuget.config b/nuget.config
-index 071facf..060a195 100644
+index 071facf95..060a195fe 100644
 --- a/nuget.config
 +++ b/nuget.config
 @@ -2,6 +2,7 @@

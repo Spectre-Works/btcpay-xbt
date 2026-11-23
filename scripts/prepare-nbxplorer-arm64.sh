@@ -7,7 +7,7 @@ python3 scripts/prepare.py nbxplorer
 mkdir -p .build/nbxplorer-arm64/app
 docker run --rm -v "$root/.build/nbxplorer:/source" \
   -v "$root/.build/nbxplorer-arm64/app:/publish" -w /source \
-  mcr.microsoft.com/dotnet/sdk:10.0.400-noble \
+  mcr.microsoft.com/dotnet/sdk:10.0.403-noble \
   dotnet publish NBXplorer/NBXplorer.csproj -c Release -r linux-arm64 \
   --self-contained false -p:UseAppHost=false -o /publish
 cp deploy/Dockerfile.nbxplorer-arm64 .build/nbxplorer-arm64/Dockerfile

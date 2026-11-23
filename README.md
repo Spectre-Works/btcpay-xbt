@@ -49,12 +49,14 @@ Merchant invoice denominations include USD, XBT, BTCB2 (a 1:1 pricing alias for 
 sh scripts/build.sh
 ```
 
-The build fetches pinned BTCPay Server and NBXplorer revisions into `.build`, applies the patches, runs the focused XBT tests, packages the custom NBXplorer client, and builds two images:
+The build fetches BTCPay Server 2.4.7 and NBXplorer 2.6.23 into `.build`, applies the patches, runs the focused XBT tests, packages the custom NBXplorer client, and builds two images:
 
 - `paperclip-btcpay:xbt-beta`
 - `paperclip-nbxplorer:xbt-beta`
 
 Use `sh scripts/build.sh --test-only` to stop after the test/package phase.
+When upgrading an existing checkout, move the generated `.build/btcpay` and
+`.build/nbxplorer` directories aside before rebuilding against the new revisions.
 
 ## Knots RC5 compatibility and ARM64 deployment
 

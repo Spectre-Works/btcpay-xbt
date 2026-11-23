@@ -1,30 +1,22 @@
-diff --git a/.paperclip-source-hash b/.paperclip-source-hash
-new file mode 100644
-index 0000000..a5630bc
---- /dev/null
-+++ b/.paperclip-source-hash
-@@ -0,0 +1 @@
-+2eb957ef5ffe3461f8c101612efc3ba9fc2616bc0574031fdb8ab788237153c2
-\ No newline at end of file
 diff --git a/NBXplorer.Client/NBXplorer.Client.csproj b/NBXplorer.Client/NBXplorer.Client.csproj
-index f66b11d..895dd2b 100644
+index 2b09807..646513c 100644
 --- a/NBXplorer.Client/NBXplorer.Client.csproj
 +++ b/NBXplorer.Client/NBXplorer.Client.csproj
 @@ -3,7 +3,7 @@
  	<PropertyGroup>
  		<TargetFrameworks>net10.0;netstandard2.1</TargetFrameworks>
  		<Company>Digital Garage</Company>
--		<Version>5.0.9</Version>
-+		<Version>5.0.9-xbt.1</Version>
+-		<Version>5.0.12</Version>
++		<Version>5.0.12-xbt.2</Version>
  		<Copyright>Copyright © Digital Garage 2017</Copyright>
  		<Description>Client API for the minimalist HD Wallet Tracker NBXplorer</Description>
  		<PackageIcon>Bitcoin.png</PackageIcon>
 @@ -28,6 +28,7 @@
          </PropertyGroup>
  	<ItemGroup>
- 		<PackageReference Include="NBitcoin" Version="10.0.10" />
+ 		<PackageReference Include="NBitcoin" Version="10.0.20" />
 +        <PackageReference Include="BouncyCastle.Cryptography" Version="2.7.0" />
- 		<PackageReference Include="NBitcoin.Altcoins" Version="6.0.4" />
+ 		<PackageReference Include="NBitcoin.Altcoins" Version="6.0.12" />
  	</ItemGroup>
      <ItemGroup>
 diff --git a/NBXplorer.Client/NBXplorerNetworkProvider.Xbt.cs b/NBXplorer.Client/NBXplorerNetworkProvider.Xbt.cs
@@ -47,7 +39,7 @@ index 0000000..42c93d4
 +    }
 +}
 diff --git a/NBXplorer.Client/NBXplorerNetworkProvider.cs b/NBXplorer.Client/NBXplorerNetworkProvider.cs
-index 8cbaa36..ec48836 100644
+index 007de3d..11a550c 100644
 --- a/NBXplorer.Client/NBXplorerNetworkProvider.cs
 +++ b/NBXplorer.Client/NBXplorerNetworkProvider.cs
 @@ -10,6 +10,7 @@ namespace NBXplorer
@@ -244,14 +236,17 @@ index 0000000..4c903db
 \ No newline at end of file
 diff --git a/NBXplorer.Tests/XbtTests.cs b/NBXplorer.Tests/XbtTests.cs
 new file mode 100644
-index 0000000..4a54fc5
+index 0000000..fe0d92d
 --- /dev/null
 +++ b/NBXplorer.Tests/XbtTests.cs
-@@ -0,0 +1,82 @@
+@@ -0,0 +1,99 @@
 +using System.IO;
 +using System.Linq;
++using System.Threading.Tasks;
 +using NBitcoin;
 +using NBitcoin.DataEncoders;
++using NBXplorer.Controllers;
++using NBXplorer.Models;
 +using Newtonsoft.Json.Linq;
 +using Xunit;
 +
@@ -259,6 +254,20 @@ index 0000000..4a54fc5
 +
 +public class XbtTests
 +{
++    [Theory]
++    [InlineData("savePrivateKeys")]
++    [InlineData("importKeysToRPC")]
++    public async Task RejectsPrivateKeyOperations(string option)
++    {
++        var provider = new NBXplorerNetworkProvider(ChainName.Mainnet);
++        var context = new TrackedSourceContext { Network = provider.GetFromCryptoCode("XBT") };
++        var controller = new DerivationSchemesController(null, new ScanUTXOSetServiceAccessor(), null, null, null, null);
++        var rejection = await Assert.ThrowsAsync<NBXplorerException>(
++            () => controller.GenerateWallet(context, new JObject { [option] = true }));
++        Assert.Equal(400, rejection.Error.HttpCode);
++        Assert.Equal("watch-only", rejection.Error.Code);
++    }
++
 +    [Theory]
 +    [InlineData("XBT", true)]
 +    [InlineData("BTC", false)]
@@ -330,31 +339,11 @@ index 0000000..4a54fc5
 +        Assert.Equal((string)vectors[1]["hash"], second.GetHash().ToString());
 +    }
 +}
-diff --git a/NBXplorer/Configuration/RPCArgs.cs b/NBXplorer/Configuration/RPCArgs.cs
-index a1086e2..a186cff 100644
---- a/NBXplorer/Configuration/RPCArgs.cs
-+++ b/NBXplorer/Configuration/RPCArgs.cs
-@@ -132,6 +132,15 @@ namespace NBXplorer.Configuration
- 
- 			logger.LogInformation($"RPC connection successful");
- 
-+            // BTC and XBT share genesis, address prefixes and P2P magic. Check the fork,
-+            // not just chain=main, before accepting a backend for XBT payments.
-+            if (networkInfo.CryptoCode == "XBT" && network.ChainName == ChainName.Mainnet)
-+            {
-+                var fork = await rpcClient.GetBlockHashAsync(961640, cancellation);
-+                if (fork.ToString() != "0000000000000050c1e5f69672f459293be14f46e5a494e7a8c8541396f18eeb")
-+                    throw new ConfigException("The RPC backend is not the XBT mainnet chain");
-+            }
-+
- 			var capabilities = await rpcClient.ScanRPCCapabilitiesAsync(cancellation);
- 			if (capabilities.Version < networkInfo.MinRPCVersion)
- 			{
 diff --git a/NBXplorer/Backend/Indexer.cs b/NBXplorer/Backend/Indexer.cs
-index adc95aa..4f55d87 100644
+index 28524c8..4874021 100644
 --- a/NBXplorer/Backend/Indexer.cs
 +++ b/NBXplorer/Backend/Indexer.cs
-@@ -278,6 +278,7 @@ namespace NBXplorer.Backend
+@@ -288,6 +288,7 @@ namespace NBXplorer.Backend
  					ConnectCancellation = handshakeTimeout.Token,
  					IsRelay = true
  				};
@@ -383,3 +372,36 @@ index 0000000..48c8d36
 +            parameters.Services |= Blake2b;
 +    }
 +}
+diff --git a/NBXplorer/Configuration/RPCArgs.cs b/NBXplorer/Configuration/RPCArgs.cs
+index a1086e2..a186cff 100644
+--- a/NBXplorer/Configuration/RPCArgs.cs
++++ b/NBXplorer/Configuration/RPCArgs.cs
+@@ -132,6 +132,15 @@ namespace NBXplorer.Configuration
+ 
+ 			logger.LogInformation($"RPC connection successful");
+ 
++            // BTC and XBT share genesis, address prefixes and P2P magic. Check the fork,
++            // not just chain=main, before accepting a backend for XBT payments.
++            if (networkInfo.CryptoCode == "XBT" && network.ChainName == ChainName.Mainnet)
++            {
++                var fork = await rpcClient.GetBlockHashAsync(961640, cancellation);
++                if (fork.ToString() != "0000000000000050c1e5f69672f459293be14f46e5a494e7a8c8541396f18eeb")
++                    throw new ConfigException("The RPC backend is not the XBT mainnet chain");
++            }
++
+ 			var capabilities = await rpcClient.ScanRPCCapabilitiesAsync(cancellation);
+ 			if (capabilities.Version < networkInfo.MinRPCVersion)
+ 			{
+diff --git a/NBXplorer/Controllers/DerivationSchemesController.cs b/NBXplorer/Controllers/DerivationSchemesController.cs
+index 963be37..10d9ecb 100644
+--- a/NBXplorer/Controllers/DerivationSchemesController.cs
++++ b/NBXplorer/Controllers/DerivationSchemesController.cs
+@@ -208,6 +208,8 @@ namespace NBXplorer.Controllers
+ 		{
+ 			var network = trackedSourceContext.Network;
+ 			var request = network.ParseJObject<GenerateWalletRequest>(rawRequest) ?? new GenerateWalletRequest();
++			if (network.CryptoCode == "XBT" && (request.SavePrivateKeys || request.ImportKeysToRPC))
++				throw new NBXplorerException(new NBXplorerError(400, "watch-only", "XBT supports watch-only receiving wallets; private-key storage is disabled."));
+ 
+ 			if (request.ImportKeysToRPC && trackedSourceContext.RpcClient is null)
+ 			{
