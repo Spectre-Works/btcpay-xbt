@@ -127,4 +127,4 @@ The backend identity check reads block 961640 and requires:
 - `patches/btcpay.patch`: BTCPay integration and receive-only safety changes.
 - `scripts/prepare.py`: reproducible pinned-source preparation.
 - `scripts/build.sh`: tests, package creation, and the two application images.
-- `docs/REVIEW.md`: validation record and remaining acceptance work.
+- [`docs/PORT_NOTES.md`](docs/PORT_NOTES.md) records the original on-chain port plan.
