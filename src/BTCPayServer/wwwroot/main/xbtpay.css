@@ -305,6 +305,32 @@ body:has(#Checkout.xbt-checkout) {
     font-weight: 600;
 }
 
+.xbt-receipt-code {
+    display: grid;
+    justify-items: center;
+    gap: .35rem;
+    flex: none;
+    inline-size: 8rem;
+}
+
+.xbt-receipt-code img {
+    inline-size: 100%;
+    block-size: auto;
+}
+
+.xbt-receipt .truncate-center-id {
+    padding: .2rem .45rem;
+    border: 1px solid var(--xbt-border);
+    border-radius: 2px;
+    color: var(--xbt-ink);
+    background: #0b1117;
+}
+
+.xbt-receipt .truncate-center-id .btn-link {
+    color: var(--xbt-accent);
+    background: transparent;
+}
+
 .xbt-receipt-print .store-logo {
     border-radius: 2px;
     background: #080b0e;
