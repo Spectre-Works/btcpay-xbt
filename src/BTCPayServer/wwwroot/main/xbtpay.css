@@ -1,5 +1,26 @@
+@font-face {
+    font-family: "Chakra Petch";
+    src: url("fonts/xbtpay/ChakraPetch-Regular.woff2") format("woff2");
+    font-weight: 400;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "Chakra Petch";
+    src: url("fonts/xbtpay/ChakraPetch-SemiBold.woff2") format("woff2");
+    font-weight: 600;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "Chakra Petch";
+    src: url("fonts/xbtpay/ChakraPetch-Bold.woff2") format("woff2");
+    font-weight: 700;
+    font-display: swap;
+}
+
 .xbtpay-wordmark {
-    font-weight: 750;
+    font-weight: 700;
     letter-spacing: .12em;
 }
 
@@ -11,69 +32,133 @@
 
 .store-powered-by .xbtpay-wordmark { margin-inline-start: .35em; }
 
+/* Match the SPECTRE WORKS transactional pages without loading assets across origins. */
+body.xbtpay-public,
 body:has(#Checkout.xbt-checkout) {
-    background: radial-gradient(ellipse 46rem 36rem at 50% -6rem, #25201e, transparent 90%), #0b0b0c;
-    color: #f6f1ed;
+    --xbt-ink: #f2f4f3;
+    --xbt-muted: #bbc3c0;
+    --xbt-accent: #a9c7ff;
+    --xbt-border: rgba(123, 167, 255, .26);
+    --xbt-panel: linear-gradient(145deg, rgba(70, 106, 154, .18), rgba(13, 22, 32, .08) 48%, rgba(5, 8, 11, .98) 82%), #080b0e;
+    --btcpay-body-bg: #0b1117;
+    --btcpay-bg-tile: #080b0e;
+    --btcpay-body-text: var(--xbt-ink);
+    --btcpay-body-text-muted: var(--xbt-muted);
+    --btcpay-body-text-hover: #fff;
+    --btcpay-body-link-accent: var(--xbt-accent);
+    color: var(--xbt-ink);
+    color-scheme: dark;
+    font-family: "Chakra Petch", system-ui, sans-serif;
+    line-height: 1.65;
+    background:
+        linear-gradient(rgba(255, 255, 255, .018) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, .014) 1px, transparent 1px),
+        radial-gradient(circle at 78% 12%, rgba(174, 184, 180, .08), transparent 32rem),
+        linear-gradient(180deg, #050708 0%, #0a0d0e 48%, #050708 100%);
+    background-size: 48px 48px, 48px 48px, auto, auto;
 }
 
-#Checkout.xbt-checkout {
+#Checkout.xbt-checkout,
+.xbtpay-public .xbt-utility {
     --wrap-max-width: 35rem;
     --wrap-padding-horizontal: clamp(.75rem, 3vw, 1.5rem);
-    --wrap-padding-vertical: clamp(1.25rem, 5vw, 3.25rem);
-    --btcpay-body-bg: #0f0e0f;
-    --btcpay-bg-tile: #181617;
-    --btcpay-body-text: #f6f1ed;
-    --btcpay-body-text-muted: #bcb0a7;
-    --btcpay-body-text-hover: #fff;
-    --btcpay-body-link-accent: #f3a87c;
-    --xbt-border: #3f3734;
-    --xbt-quiet: #bcb0a7;
-    --xbt-warm: #f3a87c;
+    --wrap-padding-vertical: clamp(1.25rem, 4vw, 2.75rem);
     justify-content: center;
-    gap: 1.25rem;
+    gap: 1rem;
     font-variant-numeric: tabular-nums;
 }
 
-.xbt-checkout .store-header { gap: .6rem; }
-.xbt-checkout .store-logo { --logo-size: 3.5rem; max-width: min(100%, 14rem); object-fit: contain; }
-.xbt-checkout .store-name { margin: 0; font-size: 1rem; letter-spacing: .06em; }
+#InvoiceReceipt.xbt-receipt {
+    --wrap-max-width: 52rem;
+    --wrap-padding-horizontal: clamp(.75rem, 3vw, 1.5rem);
+}
 
-.xbt-checkout .tile {
+.xbt-checkout .store-header,
+.xbtpay-public .store-header {
+    flex-direction: row;
+    gap: .65rem;
+    min-height: 3.75rem;
+    padding: .5rem 0 .7rem;
+    border-bottom: 1px solid rgba(255, 255, 255, .14);
+}
+
+.xbt-checkout .store-logo,
+.xbtpay-public .store-logo {
+    --logo-size: 2.625rem;
+    max-width: min(100%, 12rem);
+    object-fit: contain;
+}
+
+.xbt-checkout .store-name,
+.xbtpay-public .store-name {
+    margin: 0;
+    font-size: .95rem;
+    font-weight: 700;
+    letter-spacing: .085em;
+    text-transform: uppercase;
+}
+
+.xbt-checkout .tile,
+.xbtpay-public .tile,
+.xbtpay-public .account-form {
     --tile-padding: clamp(1rem, 4vw, 1.75rem);
-    --tile-border-radius: 1rem;
+    --tile-border-radius: 2px;
     margin-inline: 0;
     border: 1px solid var(--xbt-border);
-    box-shadow: 0 1rem 3.5rem #0007;
+    background: var(--xbt-panel);
+    box-shadow: none;
+}
+
+.xbtpay-public .account-form {
+    margin-inline: auto;
+    border-radius: 2px;
+}
+
+.xbtpay-public .account-form .form-control,
+.xbt-checkout .store-footer .form-select {
+    color: var(--xbt-ink);
+    background-color: #0b1117;
+    border-color: var(--xbt-border);
+    border-radius: 2px;
 }
 
 .xbt-checkout .payment-details-button {
-    color: var(--xbt-warm);
+    color: var(--xbt-accent);
     margin-block: .5rem 0 !important;
     min-height: 2.75rem;
 }
 
 .xbt-checkout #PaymentInfo:has(> div:empty) { display: none; }
 .xbt-checkout .info {
-    color: var(--xbt-quiet);
+    color: var(--xbt-muted);
     border: 1px solid var(--xbt-border);
-    border-radius: .45rem;
-    font-size: .8rem;
+    border-radius: 2px;
+    font-size: .85rem;
 }
 
 .xbt-checkout .info > div { padding: .5rem .65rem; }
 
-.xbt-checkout .btn-primary {
-    --btcpay-primary: #f3a87c;
-    --btcpay-primary-bg-hover: #ffc09a;
-    --btcpay-primary-bg-active: #ffc09a;
-    --btcpay-primary-text: #211510;
-    --btcpay-primary-text-hover: #211510;
-    --btcpay-primary-text-active: #211510;
+.xbt-checkout :is(.btn-primary, .btn-secondary),
+.xbtpay-public :is(.btn-primary, .btn-secondary) {
+    --btcpay-primary: #eef1f0;
+    --btcpay-primary-bg-hover: #fff;
+    --btcpay-primary-bg-active: #fff;
+    --btcpay-primary-text: #050708;
+    --btcpay-primary-text-hover: #050708;
+    --btcpay-primary-text-active: #050708;
+    min-height: 2.75rem;
+    border-radius: 2px !important;
+    font-family: inherit;
+    font-weight: 700;
+    letter-spacing: .08em;
+    text-transform: uppercase;
 }
 
-.xbt-checkout .store-footer {
+.xbt-checkout .store-footer,
+.xbtpay-public .store-footer {
     margin-top: 0;
-    padding: .25rem 0 0;
+    padding: .55rem 0 0;
+    border-top: 1px solid rgba(255, 255, 255, .14);
     flex-direction: row;
     justify-content: center;
     flex-wrap: wrap;
@@ -82,13 +167,7 @@ body:has(#Checkout.xbt-checkout) {
 }
 
 .xbt-checkout .store-footer #ContactLink { margin-bottom: 0 !important; }
-.xbt-checkout .store-footer .form-select {
-    width: auto;
-    max-width: 100%;
-    color: var(--btcpay-body-text);
-    background-color: #181617;
-    border-color: var(--xbt-border);
-}
+.xbt-checkout .store-footer .form-select { width: auto; max-width: 100%; }
 
 .xbt-network {
     display: flex;
@@ -98,44 +177,53 @@ body:has(#Checkout.xbt-checkout) {
     gap: .5rem;
 }
 
+.xbt-network h2,
+.xbtpay-public :is(h1, h2),
+.xbt-checkout #result h4 {
+    font-weight: 700;
+    letter-spacing: .005em;
+    text-transform: uppercase;
+}
+
 .xbt-network h2 {
     margin: .18rem 0 0;
-    font-size: clamp(1.35rem, 4vw, 1.7rem);
-    font-weight: 700;
-    letter-spacing: -.035em;
+    font-size: clamp(1.8rem, 5vw, 2.35rem);
+    line-height: 1.08;
     text-align: start;
 }
 
 .xbt-network-code {
-    padding: .35rem .55rem;
-    border: 1px solid #6e4f3d;
-    border-radius: .35rem;
-    color: var(--xbt-warm);
-    background: #281f1c;
+    padding: .32rem .55rem;
+    border: 1px solid var(--xbt-border);
+    border-radius: 2px;
+    color: var(--xbt-accent);
+    background: #101922;
     font-size: .76rem;
     font-weight: 700;
-    letter-spacing: .04em;
+    letter-spacing: .12em;
 }
 
-.xbt-field-label {
+.xbt-field-label,
+#Checkout .xbt-copy-field dt {
     margin: 0;
-    color: var(--xbt-quiet);
-    font-size: .78rem;
-    font-weight: 650;
+    color: var(--xbt-muted);
+    font-size: .73rem;
+    font-weight: 600;
+    letter-spacing: .15em;
+    text-transform: uppercase;
 }
 
 .xbt-instructions {
     margin: .65rem 0 1rem;
-    color: var(--xbt-quiet);
-    font-size: .9rem;
-    line-height: 1.55;
+    color: var(--xbt-muted);
+    font-size: .95rem;
 }
 
 .xbt-copy-fields {
     margin: 0;
     border: 1px solid var(--xbt-border);
-    border-radius: .65rem;
-    background: #111011;
+    border-radius: 2px;
+    background: linear-gradient(145deg, rgba(70, 106, 154, .13), rgba(7, 11, 16, .98) 72%), #080b0e;
 }
 
 #Checkout .xbt-copy-fields > .xbt-copy-field {
@@ -154,49 +242,74 @@ body:has(#Checkout.xbt-checkout) {
 .xbt-copy-value code {
     overflow-wrap: anywhere;
     word-break: normal;
-    color: #e7d7cd;
+    color: #edf1f3;
     font-size: .79rem;
     user-select: all;
 }
 
 #Checkout .xbt-amount {
-    color: #fffbf8;
-    font-size: clamp(1.4rem, 4.5vw, 1.95rem);
-    font-weight: 750;
-    letter-spacing: -.035em;
-    line-height: 1.14;
+    color: var(--xbt-ink);
+    font-size: clamp(1.5rem, 4.5vw, 2rem);
+    font-weight: 700;
+    letter-spacing: -.015em;
+    line-height: 1.18;
 }
 
-.xbt-amount span + span { color: var(--xbt-warm); font-size: .68em; }
+.xbt-amount span + span { color: var(--xbt-accent); font-size: .68em; }
 .xbt-copy-action { grid-area: button; }
 
 .xbt-copy {
-    min-height: 2.75rem;
-    padding: .55rem .7rem;
-    border: 1px solid #69584e;
-    border-radius: .42rem;
-    color: #f6f1ed;
-    background: #251f1d;
-    font-size: .78rem;
-    font-weight: 700;
+    min-height: 3rem;
+    padding: .55rem .75rem;
+    border: 1px solid rgba(238, 241, 240, .7);
+    border-radius: 2px;
+    color: #eef1f0;
+    background: rgba(4, 6, 7, .58);
+    font: 700 .75rem "Chakra Petch", system-ui, sans-serif;
+    letter-spacing: .08em;
+    text-transform: uppercase;
     white-space: nowrap;
+    transition: background-color .16s, border-color .16s, box-shadow .16s;
 }
 
-.xbt-copy:hover { background: #352a26; }
-.xbt-copy-primary { color: #211510; background: var(--xbt-warm); border-color: var(--xbt-warm); }
-.xbt-copy-primary:hover { background: #ffc09a; }
+.xbt-copy-primary { color: #050708; background: #eef1f0; border-color: #eef1f0; }
+.xbt-copy:hover { box-shadow: 0 0 0 1px #fff; }
+.xbt-copy-primary:hover { background: #fff; }
 .xbt-copy .text-success { color: inherit !important; }
-.xbt-checkout :is(button, a, select):focus-visible { outline: 2px solid #ffd0b6; outline-offset: 3px; }
+.xbt-checkout :is(button, a, select):focus-visible,
+.xbtpay-public :is(button, a, select, input):focus-visible {
+    outline: 2px solid var(--xbt-accent);
+    outline-offset: 4px;
+}
 
 .xbt-network-warning {
     margin: .9rem 0 0;
     padding: .65rem .75rem;
-    border-inline-start: 2px solid var(--xbt-warm);
-    border-radius: .25rem;
-    color: #e4cfc1;
-    background: #281f1c;
-    font-size: .82rem;
+    border: 1px solid var(--xbt-border);
+    border-inline-start: 2px solid var(--xbt-accent);
+    border-radius: 2px;
+    color: #e4ecf2;
+    background: linear-gradient(90deg, rgba(70, 106, 154, .2), rgba(12, 18, 25, .9));
+    font-size: .85rem;
     line-height: 1.5;
+}
+
+.xbt-confirmations {
+    display: table;
+    margin: 0 auto 1rem;
+    padding: .45rem .8rem;
+    border: 1px solid var(--xbt-border);
+    color: var(--xbt-accent);
+    background: #101922;
+    border-radius: 2px;
+    font-weight: 600;
+}
+
+.xbt-receipt-print .store-logo {
+    border-radius: 2px;
+    background: #080b0e;
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
 }
 
 @media (max-width: 420px) {
@@ -207,4 +320,8 @@ body:has(#Checkout.xbt-checkout) {
     }
 
     .xbt-copy { width: 100%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .xbt-copy { transition: none; }
 }

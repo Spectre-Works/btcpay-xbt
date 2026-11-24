@@ -5,12 +5,12 @@
         <div class="xbt-network">
             <div>
                 <p class="xbt-field-label" text-translate="true">Payment network</p>
-                <h2>Bitcoin BLAKE2b</h2>
+                <h2>Bitcoin</h2>
             </div>
-            <span class="xbt-network-code">XBT / BTCB2</span>
+            <span class="xbt-network-code">XBT</span>
         </div>
-        <p v-if="model.isUnsetTopUp" class="xbt-instructions" text-translate="true">Select Bitcoin BLAKE2b in your wallet, then copy the receiving address below.</p>
-        <p v-else class="xbt-instructions" text-translate="true">Select Bitcoin BLAKE2b in your wallet, then copy the exact amount and address below.</p>
+        <p v-if="model.isUnsetTopUp" class="xbt-instructions" text-translate="true">Select the XBT network in your wallet, then copy the receiving address below.</p>
+        <p v-else class="xbt-instructions" text-translate="true">Select the XBT network in your wallet, then copy the exact amount and address below.</p>
         <dl class="xbt-copy-fields">
             <div v-if="!model.isUnsetTopUp" class="xbt-copy-field">
                 <dt class="xbt-field-label" text-translate="true">Exact amount due</dt>

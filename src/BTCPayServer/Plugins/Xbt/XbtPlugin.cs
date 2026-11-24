@@ -47,7 +47,7 @@ public sealed class XbtPlugin : BaseBTCPayServerPlugin
         services.AddUIExtension("store-integrations-nav", "/Plugins/Xbt/Views/Nav.cshtml");
         services.AddUIExtension("checkout-end", "/Plugins/Xbt/Views/CheckoutBody.cshtml");
         var onchain = PaymentTypes.CHAIN.GetPaymentMethodId("XBT");
-        services.AddDefaultPrettyName(onchain, "XBT on-chain (BLAKE2b)");
+        services.AddDefaultPrettyName(onchain, "Bitcoin (XBT)");
         services.AddSingleton<IPaymentMethodHandler>(p => ActivatorUtilities.CreateInstance<BitcoinLikePaymentHandler>(p, network, onchain));
         services.AddSingleton<IPaymentLinkExtension>(new XbtCopyPaymentLink(onchain));
         services.AddSingleton<ICheckoutModelExtension>(p => new XbtCheckoutModelExtension(

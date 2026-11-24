@@ -308,18 +308,19 @@ index 0671cce..94d5fa2 100644
  @* Non-JS *@
  <noscript>
 diff --git a/BTCPayServer/Views/Shared/_LayoutSignedOut.cshtml b/BTCPayServer/Views/Shared/_LayoutSignedOut.cshtml
-index 359d954..a28425a 100644
+index 359d954..a211495 100644
 --- a/BTCPayServer/Views/Shared/_LayoutSignedOut.cshtml
 +++ b/BTCPayServer/Views/Shared/_LayoutSignedOut.cshtml
-@@ -3,6 +3,7 @@
+@@ -3,6 +3,8 @@
  @inject SettingsRepository SettingsRepository
  @{
      Layout = "_LayoutSimple";
 +    ViewData["ShowFooter"] = false;
++    ViewData["XbtPayPublic"] = true;
      ViewBag.ShowTitle ??= true;
      ViewBag.ShowLeadText ??= false;
      // obfuscate email on public page, decode via JS (see below)
-@@ -47,12 +48,11 @@
+@@ -47,12 +49,11 @@
              <vc:main-logo />
          </a>
  
@@ -330,11 +331,11 @@ index 359d954..a28425a 100644
              <p class="lead">
 -                <span class="d-sm-block" text-translate="true">A self-hosted, open-source bitcoin payment processor.</span>
 -                <span class="d-sm-block" text-translate="true">It is secure, private, censorship-resistant and free.</span>
-+                <span text-translate="true">A self-hosted payment server for Bitcoin BLAKE2b (XBT).</span>
++                <span text-translate="true">A self-hosted payment server for Bitcoin (XBT).</span>
              </p>
          }
  
-@@ -83,12 +83,3 @@
+@@ -83,12 +84,3 @@
          </script>
      }
  }
@@ -347,6 +348,19 @@ index 359d954..a28425a 100644
 -
 -
 -
+diff --git a/BTCPayServer/Views/Shared/_LayoutSimple.cshtml b/BTCPayServer/Views/Shared/_LayoutSimple.cshtml
+index 2a2517c..1d21a4a 100644
+--- a/BTCPayServer/Views/Shared/_LayoutSimple.cshtml
++++ b/BTCPayServer/Views/Shared/_LayoutSimple.cshtml
+@@ -12,7 +12,7 @@
+         .btcpay-footer .justify-content-xl-start { justify-content: center !important; }
+     </style>
+ </head>
+-<body class="d-flex flex-column min-vh-100">
++<body class="d-flex flex-column min-vh-100 @(ViewData["XbtPayPublic"] is true ? "xbtpay-public" : "")">
+     <section class="content-wrapper flex-grow-1">
+         <div class="container">
+             @RenderBody()
 diff --git a/BTCPayServer/Views/Shared/_StoreFooterLogo.cshtml b/BTCPayServer/Views/Shared/_StoreFooterLogo.cshtml
 index 0f0c0c3..b67151c 100644
 --- a/BTCPayServer/Views/Shared/_StoreFooterLogo.cshtml
@@ -374,17 +388,18 @@ index bfe1166..377deca 100644
 +<p text-translate="true">XBTPAY couldn’t load this page. Try again or contact the server operator if the problem continues.</p>
 +<a href="/" text-translate="true">Return to the homepage</a>
 diff --git a/BTCPayServer/Views/UIError/_LayoutError.cshtml b/BTCPayServer/Views/UIError/_LayoutError.cshtml
-index 9dc491b..52b7507 100644
+index 9dc491b..161be4f 100644
 --- a/BTCPayServer/Views/UIError/_LayoutError.cshtml
 +++ b/BTCPayServer/Views/UIError/_LayoutError.cshtml
-@@ -1,5 +1,6 @@
+@@ -1,5 +1,7 @@
  @{
      Layout = "_LayoutSimple";
 +    ViewData["ShowFooter"] = false;
++    ViewData["XbtPayPublic"] = true;
  }
  
  <style>
-@@ -19,7 +20,4 @@
+@@ -19,7 +21,4 @@
          @RenderBody()
      </div>
  
@@ -393,7 +408,7 @@ index 9dc491b..52b7507 100644
 -    <partial name="_BTCPaySupporters" />    
  </div>
 diff --git a/BTCPayServer/Views/UIInvoice/Checkout.cshtml b/BTCPayServer/Views/UIInvoice/Checkout.cshtml
-index ab2c405..49f49f4 100644
+index ab2c405..61b2f09 100644
 --- a/BTCPayServer/Views/UIInvoice/Checkout.cshtml
 +++ b/BTCPayServer/Views/UIInvoice/Checkout.cshtml
 @@ -35,7 +35,7 @@
@@ -458,7 +473,29 @@ index ab2c405..49f49f4 100644
              </section>
              <section id="result" v-else>
                  <div v-if="isProcessing" id="processing" key="processing">
-@@ -233,10 +233,10 @@
+@@ -118,7 +118,10 @@
+                         </span>
+                         <h4 v-t="'payment_received'" class="mb-4"></h4>
+                         <p class="text-center" v-t="'payment_received_body'"></p>
+-						<p class="text-center" v-if="srvModel.receivedConfirmations !== null && srvModel.requiredConfirmations" v-t="{ path: 'payment_received_confirmations', args: { cryptoCode: realPaymentMethodCurrency, receivedConfirmations: srvModel.receivedConfirmations, requiredConfirmations: srvModel.requiredConfirmations } }"></p>
++                        <p class="xbt-confirmations" v-if="srvModel.paymentMethodId === 'XBT-CHAIN' && srvModel.receivedConfirmations !== null && srvModel.requiredConfirmations">
++                            {{ srvModel.receivedConfirmations }}/{{ srvModel.requiredConfirmations }} <span text-translate="true">confirmations</span>
++                        </p>
++						<p class="text-center" v-else-if="srvModel.receivedConfirmations !== null && srvModel.requiredConfirmations" v-t="{ path: 'payment_received_confirmations', args: { cryptoCode: realPaymentMethodCurrency, receivedConfirmations: srvModel.receivedConfirmations, requiredConfirmations: srvModel.requiredConfirmations } }"></p>
+                         <div id="PaymentDetails" class="payment-details">
+                             <dl class="mb-0">
+                                 <div>
+@@ -213,7 +216,8 @@
+                             <span class="fw-semibold" v-t="'view_details'"></span>
+                             <vc:icon symbol="caret-down" />
+                         </button>
+-                        <p class="text-center mt-3" v-html="replaceNewlines($t(isPaidPartial ? 'invoice_paidpartial_body' : 'invoice_expired_body', { storeName: srvModel.storeName, minutes: srvModel.maxTimeMinutes }))"></p>
++                        <p class="text-center mt-3" v-if="pmId === 'XBT-CHAIN'" text-translate="true">If you sent XBT, return to your order and check its payment status before sending again.</p>
++                        <p class="text-center mt-3" v-else v-html="replaceNewlines($t(isPaidPartial ? 'invoice_paidpartial_body' : 'invoice_expired_body', { storeName: srvModel.storeName, minutes: srvModel.maxTimeMinutes }))"></p>
+                     </div>
+                     <div class="buttons" v-if="(isPaidPartial && srvModel.storeSupportUrl) || storeLink || isModal">
+                         <a v-if="storeLink" class="btn btn-primary rounded-pill w-100" :href="storeLink" :target="isModal ? '_top' : null" v-html="$t('return_to_store', { storeName: srvModel.storeName })" id="StoreLink"></a>
+@@ -233,10 +237,10 @@
          }
          <footer class="store-footer">
              <a v-if="srvModel.storeSupportUrl" class="mb-4" :href="srvModel.storeSupportUrl" v-t="'contact_us'" id="ContactLink"></a>
@@ -472,11 +509,157 @@ index ab2c405..49f49f4 100644
          </footer>
      </div>
      <noscript>
+diff --git a/BTCPayServer/Views/UIInvoice/CheckoutNoScript.cshtml b/BTCPayServer/Views/UIInvoice/CheckoutNoScript.cshtml
+index 80e9ad8..9eb0c13 100644
+--- a/BTCPayServer/Views/UIInvoice/CheckoutNoScript.cshtml
++++ b/BTCPayServer/Views/UIInvoice/CheckoutNoScript.cshtml
+@@ -1,46 +1,64 @@
+ @model CheckoutModel
+ @{
+     Layout = null;
++    ViewData.SetTitle(Model.HtmlTitle);
++    ViewData["StoreBranding"] = Model.StoreBranding;
++    var status = Model.Status?.ToLowerInvariant();
+ }
+ <!DOCTYPE html>
+-<html>
++<html lang="@Model.DefaultLang">
+ <head>
+-    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+-
+-    <meta charset="utf-8">
+-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+-    <META NAME="robots" CONTENT="noindex,nofollow">
+-    <title>@Model.HtmlTitle</title>
++    <partial name="LayoutHead" />
++    <meta name="robots" content="noindex,nofollow">
+ </head>
+-<body>
+-    <h1>Pay with @Model.StoreName</h1>
+-    @if (Model.Status == "new")
+-    {
+-		<h1 class="text-danger" text-translate="true">This payment method requires javascript.</h1>
+-    }
+-    else if (Model.Status == "paid" || Model.Status == "complete" || Model.Status == "confirmed")
+-    {
+-        <div>
+-            <p text-translate="true">This invoice has been paid</p>
+-        </div>
+-    }
+-    else if (Model.Status == "expired" || Model.Status == "invalid")
+-    {
+-        <div>
+-            <p text-translate="true">This invoice has expired</p>
+-        </div>
+-    }
+-    else
+-    {
+-        <div>
+-            <p text-translate="true">Non-supported state of invoice</p>
+-        </div>
+-    }
++<body class="min-vh-100 xbtpay-public">
++    <div class="public-page-wrap xbt-utility">
++        <partial name="_StoreHeader" model="(Model.StoreName, Model.StoreBranding)" />
++        <main class="tile">
++            @if (status is "settled" or "complete" or "confirmed")
++            {
++                <h2 text-translate="true">Invoice paid</h2>
++            }
++            else if (status is "processing" or "paid")
++            {
++                <h2 text-translate="true">Payment confirming</h2>
++            }
++            else if (status is "expired" or "invalid" || (status == "new" && Model.ExpirationSeconds <= 0))
++            {
++                <h2 text-translate="true">Invoice expired</h2>
++                <p text-translate="true">If you already sent a payment, check your order status before sending again.</p>
++            }
++            else if (status == "new")
++            {
++                <h2 text-translate="true">Open invoice</h2>
++                <p text-translate="true">Enable JavaScript and reopen the invoice to see the current amount and receiving address.</p>
++                @if (Model.PaymentMethodId == "XBT-CHAIN")
++                {
++                    <p class="xbt-network-warning" role="note">
++                        <strong text-translate="true">Send only on XBT.</strong>
++                        <span text-translate="true">SHA-256 Bitcoin (BTC) is a different network.</span>
++                    </p>
++                }
++            }
++            else
++            {
++                <h2 text-translate="true">Invoice status unavailable</h2>
++            }
+ 
+-    <hr />
+-    <p>
+-        <a asp-action="Checkout" asp-route-invoiceId="@Model.InvoiceId" text-translate="true">Go back to Javascript enabled invoice</a>
+-    </p>
+-    @await Component.InvokeAsync("UiExtensionPoint", new { location = "checkout-noscript-end", model = Model })
++            <div class="buttons mt-3">
++                <a class="btn btn-primary" asp-action="Checkout" asp-route-invoiceId="@Model.InvoiceId" text-translate="true">Open invoice</a>
++                @if (!string.IsNullOrEmpty(Model.StoreSupportUrl))
++                {
++                    <a class="btn btn-secondary" href="@Model.StoreSupportUrl" text-translate="true">Contact us</a>
++                }
++            </div>
++            @await Component.InvokeAsync("UiExtensionPoint", new { location = "checkout-noscript-end", model = Model })
++        </main>
++        <footer class="store-footer">
++            <span class="store-powered-by">
++                <span text-translate="true">Powered by</span> <partial name="_StoreFooterLogo" />
++            </span>
++        </footer>
++    </div>
+ </body>
+ </html>
 diff --git a/BTCPayServer/Views/UIInvoice/InvoiceReceipt.cshtml b/BTCPayServer/Views/UIInvoice/InvoiceReceipt.cshtml
-index 052a36f..c73b47d 100644
+index 052a36f..6a0b12a 100644
 --- a/BTCPayServer/Views/UIInvoice/InvoiceReceipt.cshtml
 +++ b/BTCPayServer/Views/UIInvoice/InvoiceReceipt.cshtml
-@@ -201,9 +201,9 @@
+@@ -39,8 +39,8 @@
+     </style>
+     <vc:declare-date-formatter-options></vc:declare-date-formatter-options>
+ </head>
+-<body class="min-vh-100">
+-    <div id="InvoiceReceipt" class="public-page-wrap">
++<body class="min-vh-100 xbtpay-public">
++    <div id="InvoiceReceipt" class="public-page-wrap xbt-receipt">
+         <main class="flex-grow-1">
+             <div class="d-flex flex-column justify-content-center gap-4">
+                 <partial name="_StoreHeader" model="(Model.StoreName, Model.StoreBranding)" />
+@@ -62,7 +62,10 @@
+                     {
+                         if (Model.ReceiptOptions.ShowQR is true)
+                         {
+-                            <vc:qr-code data="@Context.Request.GetCurrentUrl()" />
++                            <div class="text-center">
++                                <vc:qr-code data="@Context.Request.GetCurrentUrl()" />
++                                <span class="small text-muted" text-translate="true">Receipt link</span>
++                            </div>
+                         }
+                         <div class="d-flex gap-4 mb-0 flex-fill">
+                             <dl class="d-flex flex-column gap-4 mb-0 flex-fill">
+@@ -155,7 +158,7 @@
+ 													<small class="text-muted text-nowrap">@payment.PaidFormatted</small>
+ 												</td>
+ 												<td class="text-nowrap">@payment.RateFormatted</td>
+-												<td class="text-nowrap">@payment.PaymentMethod</td>
++												<td class="text-nowrap">@(payment.PaymentMethod == "XBT-CHAIN" ? "XBT" : payment.PaymentMethod)</td>
+ 												<td class="text-nowrap">@payment.ReceivedDate.ToBrowserDate()</td>
+ 											</tr>
+ 
+@@ -178,7 +181,7 @@
+                                 @foreach (var payment in Model.Payments)
+                                 {
+                                     <div class="mb-4">
+-                                        <strong>@payment.PaidFormatted</strong> = @payment.Amount @payment.PaymentMethod, Rate: @payment.RateFormatted
++                                        <strong>@payment.PaidFormatted</strong> = @payment.Amount @(payment.PaymentMethod == "XBT-CHAIN" ? "XBT" : payment.PaymentMethod), Rate: @payment.RateFormatted
+                                         @if (!string.IsNullOrEmpty(payment.PaymentProof))
+                                         {
+                                             <div>Proof: @payment.PaymentProof</div>
+@@ -201,9 +204,9 @@
                      Admin details
                  </a>
              </p>
@@ -489,10 +672,45 @@ index 052a36f..c73b47d 100644
      </div>
      <partial name="LayoutFoot"/>
 diff --git a/BTCPayServer/Views/UIInvoice/InvoiceReceiptPrint.cshtml b/BTCPayServer/Views/UIInvoice/InvoiceReceiptPrint.cshtml
-index a53edbc..5e807db 100644
+index a53edbc..6fd806b 100644
 --- a/BTCPayServer/Views/UIInvoice/InvoiceReceiptPrint.cshtml
 +++ b/BTCPayServer/Views/UIInvoice/InvoiceReceiptPrint.cshtml
-@@ -287,7 +287,7 @@
+@@ -17,7 +17,7 @@
+ <head>
+     <meta charset="utf-8" />
+     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+-    <link rel="icon" href="~/favicon.ico" type="image/x-icon">
++    <link rel="icon" href="~/main/xbtpay-icon.png" type="image/png">
+     <meta name="robots" content="noindex">
+     <title>@ViewData["Title"]</title>
+     @* CSS *@
+@@ -36,6 +36,7 @@
+         <link href="~/main/site.css" asp-append-version="true" rel="stylesheet" />
+     }
+     <link href="~/main/themes/default.css" asp-append-version="true" rel="stylesheet" />
++    <link href="~/main/xbtpay.css" asp-append-version="true" rel="stylesheet" />
+     <meta name="robots" content="noindex,nofollow">
+     @if (isProcessing)
+     {
+@@ -85,7 +86,7 @@
+     <vc:declare-date-formatter-options></vc:declare-date-formatter-options>
+ </head>
+ 
+-<body class="m-0 p-0 bg-white">
++<body class="m-0 p-0 bg-white xbt-receipt-print">
+ <center>
+     <partial name="_StoreHeader" model="(Model.StoreName, Model.StoreBranding)" />
+     <div id="InvoiceSummary" style="max-width:600px">
+@@ -282,12 +283,15 @@
+             </div>
+             if (Model.ReceiptOptions.ShowQR is true)
+             {
+-                <vc:qr-code data="@Context.Request.GetCurrentUrl()" size="128" />
++                <div class="text-center">
++                    <vc:qr-code data="@Context.Request.GetCurrentUrl()" size="128" />
++                    <span class="small text-muted d-block" text-translate="true">Receipt link</span>
++                </div>
+             }
          }
      </div>
      <div class="store-footer p-3">
