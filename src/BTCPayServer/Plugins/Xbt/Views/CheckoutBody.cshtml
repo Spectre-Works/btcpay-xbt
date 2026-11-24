@@ -1,6 +1,9 @@
 @using BTCPayServer.Plugins.Xbt
 @inject BTCPayServer.Security.ContentSecurityPolicies Csp
 @{
+    // BTCPay's AntiXSS policy does not add same-origin connections automatically.
+    Csp.Add("connect-src", "'self'");
+    Csp.Add("connect-src", "wss://pay.spectreworks.io");
     Csp.Add("connect-src", "https://spectreworks.io");
     Csp.Add("connect-src", "https://bitcoinblake2bmining-preview.spectrgen.workers.dev");
 }
