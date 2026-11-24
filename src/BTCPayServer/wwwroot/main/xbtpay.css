@@ -261,10 +261,10 @@ body:has(#Checkout.xbt-checkout) {
 .xbt-copy {
     min-height: 3rem;
     padding: .55rem .75rem;
-    border: 1px solid rgba(238, 241, 240, .7);
+    border: 1px solid #eef1f0;
     border-radius: 2px;
-    color: #eef1f0;
-    background: rgba(4, 6, 7, .58);
+    color: #050708;
+    background: #eef1f0;
     font: 700 .75rem "Chakra Petch", system-ui, sans-serif;
     letter-spacing: .08em;
     text-transform: uppercase;
@@ -272,9 +272,7 @@ body:has(#Checkout.xbt-checkout) {
     transition: background-color .16s, border-color .16s, box-shadow .16s;
 }
 
-.xbt-copy-primary { color: #050708; background: #eef1f0; border-color: #eef1f0; }
-.xbt-copy:hover { box-shadow: 0 0 0 1px #fff; }
-.xbt-copy-primary:hover { background: #fff; }
+.xbt-copy:hover { background: #fff; box-shadow: 0 0 0 1px #fff; }
 .xbt-copy .text-success { color: inherit !important; }
 .xbt-checkout :is(button, a, select):focus-visible,
 .xbtpay-public :is(button, a, select, input):focus-visible {
