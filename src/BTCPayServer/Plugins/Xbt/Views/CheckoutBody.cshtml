@@ -1,46 +1,98 @@
 @using BTCPayServer.Plugins.Xbt
+@inject BTCPayServer.Security.ContentSecurityPolicies Csp
+@{
+    Csp.Add("connect-src", "https://spectreworks.io");
+    Csp.Add("connect-src", "https://bitcoinblake2bmining-preview.spectrgen.workers.dev");
+}
 
 <template id="@XbtCheckoutModelExtension.BodyComponent">
     <div v-if="model.address" class="xbt-payment">
-        <div class="xbt-network">
-            <div>
-                <p class="xbt-field-label" text-translate="true">Payment network</p>
-                <h2>Bitcoin</h2>
+        <div v-if="paymentAvailable">
+            <div class="xbt-network">
+                <div>
+                    <p class="xbt-field-label" text-translate="true">Payment network</p>
+                    <h2>Bitcoin</h2>
+                </div>
+                <span class="xbt-network-code">XBT</span>
             </div>
-            <span class="xbt-network-code">XBT</span>
+            <p v-if="model.isUnsetTopUp" class="xbt-instructions" text-translate="true">Select the XBT network in your wallet, then copy the receiving address below.</p>
+            <p v-else class="xbt-instructions" text-translate="true">Select the XBT network in your wallet, then copy the exact amount and address below.</p>
+            <dl class="xbt-copy-fields">
+                <div v-if="!model.isUnsetTopUp" class="xbt-copy-field">
+                    <dt class="xbt-field-label" text-translate="true">Exact amount due</dt>
+                    <dd class="xbt-copy-value xbt-amount"><span v-text="model.due"></span> <span>XBT</span></dd>
+                    <dd class="xbt-copy-action">
+                        <button class="xbt-copy" type="button" :data-clipboard="model.due" data-clipboard-confirm="Amount copied" aria-live="polite" text-translate="true">Copy XBT amount</button>
+                    </dd>
+                </div>
+                <div v-else class="xbt-copy-field">
+                    <dt class="xbt-field-label" text-translate="true">Amount</dt>
+                    <dd class="xbt-copy-value" text-translate="true">Any amount in XBT</dd>
+                </div>
+                <div class="xbt-copy-field">
+                    <dt class="xbt-field-label" text-translate="true">Receiving address</dt>
+                    <dd class="xbt-copy-value"><code dir="ltr" v-text="model.address"></code></dd>
+                    <dd class="xbt-copy-action">
+                        <button class="xbt-copy" type="button" :data-clipboard="model.address" data-clipboard-confirm="Address copied" aria-live="polite" text-translate="true">Copy XBT address</button>
+                    </dd>
+                </div>
+            </dl>
+            <p class="xbt-network-warning" role="note">
+                <strong text-translate="true">Send only on XBT.</strong>
+                <span text-translate="true">SHA-256 Bitcoin (BTC) is a different network.</span>
+            </p>
         </div>
-        <p v-if="model.isUnsetTopUp" class="xbt-instructions" text-translate="true">Select the XBT network in your wallet, then copy the receiving address below.</p>
-        <p v-else class="xbt-instructions" text-translate="true">Select the XBT network in your wallet, then copy the exact amount and address below.</p>
-        <dl class="xbt-copy-fields">
-            <div v-if="!model.isUnsetTopUp" class="xbt-copy-field">
-                <dt class="xbt-field-label" text-translate="true">Exact amount due</dt>
-                <dd class="xbt-copy-value xbt-amount"><span v-text="model.due"></span> <span>XBT</span></dd>
-                <dd class="xbt-copy-action">
-                    <button class="xbt-copy" type="button" :data-clipboard="model.due" data-clipboard-confirm="Amount copied" aria-live="polite" text-translate="true">Copy XBT amount</button>
-                </dd>
-            </div>
-            <div v-else class="xbt-copy-field">
-                <dt class="xbt-field-label" text-translate="true">Amount</dt>
-                <dd class="xbt-copy-value" text-translate="true">Any amount in XBT</dd>
-            </div>
-            <div class="xbt-copy-field">
-                <dt class="xbt-field-label" text-translate="true">Receiving address</dt>
-                <dd class="xbt-copy-value"><code dir="ltr" v-text="model.address"></code></dd>
-                <dd class="xbt-copy-action">
-                    <button class="xbt-copy" type="button" :data-clipboard="model.address" data-clipboard-confirm="Address copied" aria-live="polite" text-translate="true">Copy XBT address</button>
-                </dd>
-            </div>
-        </dl>
-        <p class="xbt-network-warning" role="note">
-            <strong text-translate="true">Send only on XBT.</strong>
-            <span text-translate="true">SHA-256 Bitcoin (BTC) is a different network.</span>
-        </p>
+        <div v-if="storefrontReturn" class="mt-3">
+            <p v-if="availability === 'checking'" class="xbt-instructions" role="status">Checking the invoice with SPECTRE WORKS…</p>
+            <p v-if="availability === 'closed'" class="xbt-network-warning" role="status">This invoice is no longer open for payment. Return to SPECTRE WORKS to check your order.</p>
+            <p v-if="availability === 'unavailable'" class="xbt-network-warning" role="status">We couldn't verify this invoice. Return to SPECTRE WORKS to check your order before sending funds.</p>
+            <a class="btn btn-secondary rounded-pill w-100" :href="storefrontReturn" target="_top">Return to SPECTRE WORKS checkout</a>
+        </div>
     </div>
 </template>
 
 <script>
     Vue.component(@Safe.Json(XbtCheckoutModelExtension.BodyComponent), {
         props: ['model'],
-        template: @Safe.Json("#" + XbtCheckoutModelExtension.BodyComponent)
+        template: @Safe.Json("#" + XbtCheckoutModelExtension.BodyComponent),
+        data() {
+            return { availability: 'checking', availabilityTimer: null };
+        },
+        computed: {
+            storefrontReturn() {
+                if (!/^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/.test(this.model.orderId)) return null;
+                const link = this.model.merchantRefLink;
+                const checkout = '/checkout/?payment=return';
+                return link === 'https://spectreworks.io' + checkout ||
+                    link === 'https://bitcoinblake2bmining-preview.spectrgen.workers.dev' + checkout ? link : null;
+            },
+            paymentAvailable() {
+                return !this.storefrontReturn || this.availability === 'open';
+            }
+        },
+        mounted() {
+            if (!this.storefrontReturn) return;
+            this.checkAvailability();
+            this.availabilityTimer = setInterval(() => this.checkAvailability(), 10000);
+        },
+        beforeDestroy() {
+            clearInterval(this.availabilityTimer);
+        },
+        methods: {
+            async checkAvailability() {
+                const origin = new URL(this.storefrontReturn).origin;
+                const invoice = encodeURIComponent(this.model.invoiceId);
+                try {
+                    const response = await fetch(`${origin}/api/checkout/xbt-invoices/${invoice}`, {
+                        cache: 'no-store', credentials: 'omit', redirect: 'error', signal: AbortSignal.timeout(6000)
+                    });
+                    if (!response.ok) throw new Error('Invoice status unavailable');
+                    const status = await response.json();
+                    this.availability = status.payable === true ? 'open' : 'closed';
+                } catch {
+                    this.availability = 'unavailable';
+                }
+            }
+        }
     });
 </script>
