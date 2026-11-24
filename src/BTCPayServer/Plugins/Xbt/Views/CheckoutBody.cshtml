@@ -56,7 +56,7 @@
         props: ['model'],
         template: @Safe.Json("#" + XbtCheckoutModelExtension.BodyComponent),
         data() {
-            return { availability: 'checking', availabilityTimer: null };
+            return { availability: 'checking', availabilityTimer: null, checkingAvailability: false };
         },
         computed: {
             storefrontReturn() {
@@ -74,12 +74,21 @@
             if (!this.storefrontReturn) return;
             this.checkAvailability();
             this.availabilityTimer = setInterval(() => this.checkAvailability(), 10000);
+            document.addEventListener('visibilitychange', this.checkOnReturn);
         },
         beforeDestroy() {
             clearInterval(this.availabilityTimer);
+            document.removeEventListener('visibilitychange', this.checkOnReturn);
         },
         methods: {
+            checkOnReturn() {
+                if (document.visibilityState !== 'visible') return;
+                this.availability = 'checking';
+                this.checkAvailability();
+            },
             async checkAvailability() {
+                if (this.checkingAvailability) return;
+                this.checkingAvailability = true;
                 const origin = new URL(this.storefrontReturn).origin;
                 const invoice = encodeURIComponent(this.model.invoiceId);
                 try {
@@ -91,6 +100,8 @@
                     this.availability = status.payable === true ? 'open' : 'closed';
                 } catch {
                     this.availability = 'unavailable';
+                } finally {
+                    this.checkingAvailability = false;
                 }
             }
         }
