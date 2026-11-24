@@ -1,0 +1,210 @@
+.xbtpay-wordmark {
+    font-weight: 750;
+    letter-spacing: .12em;
+}
+
+.xbtpay-main-logo {
+    display: inline-flex;
+    align-items: center;
+    color: var(--btcpay-body-text);
+}
+
+.store-powered-by .xbtpay-wordmark { margin-inline-start: .35em; }
+
+body:has(#Checkout.xbt-checkout) {
+    background: radial-gradient(ellipse 46rem 36rem at 50% -6rem, #25201e, transparent 90%), #0b0b0c;
+    color: #f6f1ed;
+}
+
+#Checkout.xbt-checkout {
+    --wrap-max-width: 35rem;
+    --wrap-padding-horizontal: clamp(.75rem, 3vw, 1.5rem);
+    --wrap-padding-vertical: clamp(1.25rem, 5vw, 3.25rem);
+    --btcpay-body-bg: #0f0e0f;
+    --btcpay-bg-tile: #181617;
+    --btcpay-body-text: #f6f1ed;
+    --btcpay-body-text-muted: #bcb0a7;
+    --btcpay-body-text-hover: #fff;
+    --btcpay-body-link-accent: #f3a87c;
+    --xbt-border: #3f3734;
+    --xbt-quiet: #bcb0a7;
+    --xbt-warm: #f3a87c;
+    justify-content: center;
+    gap: 1.25rem;
+    font-variant-numeric: tabular-nums;
+}
+
+.xbt-checkout .store-header { gap: .6rem; }
+.xbt-checkout .store-logo { --logo-size: 3.5rem; max-width: min(100%, 14rem); object-fit: contain; }
+.xbt-checkout .store-name { margin: 0; font-size: 1rem; letter-spacing: .06em; }
+
+.xbt-checkout .tile {
+    --tile-padding: clamp(1rem, 4vw, 1.75rem);
+    --tile-border-radius: 1rem;
+    margin-inline: 0;
+    border: 1px solid var(--xbt-border);
+    box-shadow: 0 1rem 3.5rem #0007;
+}
+
+.xbt-checkout .payment-details-button {
+    color: var(--xbt-warm);
+    margin-block: .5rem 0 !important;
+    min-height: 2.75rem;
+}
+
+.xbt-checkout #PaymentInfo:has(> div:empty) { display: none; }
+.xbt-checkout .info {
+    color: var(--xbt-quiet);
+    border: 1px solid var(--xbt-border);
+    border-radius: .45rem;
+    font-size: .8rem;
+}
+
+.xbt-checkout .info > div { padding: .5rem .65rem; }
+
+.xbt-checkout .btn-primary {
+    --btcpay-primary: #f3a87c;
+    --btcpay-primary-bg-hover: #ffc09a;
+    --btcpay-primary-bg-active: #ffc09a;
+    --btcpay-primary-text: #211510;
+    --btcpay-primary-text-hover: #211510;
+    --btcpay-primary-text-active: #211510;
+}
+
+.xbt-checkout .store-footer {
+    margin-top: 0;
+    padding: .25rem 0 0;
+    flex-direction: row;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: .75rem 1rem;
+    font-size: .8rem;
+}
+
+.xbt-checkout .store-footer #ContactLink { margin-bottom: 0 !important; }
+.xbt-checkout .store-footer .form-select {
+    width: auto;
+    max-width: 100%;
+    color: var(--btcpay-body-text);
+    background-color: #181617;
+    border-color: var(--xbt-border);
+}
+
+.xbt-network {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: .5rem;
+}
+
+.xbt-network h2 {
+    margin: .18rem 0 0;
+    font-size: clamp(1.35rem, 4vw, 1.7rem);
+    font-weight: 700;
+    letter-spacing: -.035em;
+    text-align: start;
+}
+
+.xbt-network-code {
+    padding: .35rem .55rem;
+    border: 1px solid #6e4f3d;
+    border-radius: .35rem;
+    color: var(--xbt-warm);
+    background: #281f1c;
+    font-size: .76rem;
+    font-weight: 700;
+    letter-spacing: .04em;
+}
+
+.xbt-field-label {
+    margin: 0;
+    color: var(--xbt-quiet);
+    font-size: .78rem;
+    font-weight: 650;
+}
+
+.xbt-instructions {
+    margin: .65rem 0 1rem;
+    color: var(--xbt-quiet);
+    font-size: .9rem;
+    line-height: 1.55;
+}
+
+.xbt-copy-fields {
+    margin: 0;
+    border: 1px solid var(--xbt-border);
+    border-radius: .65rem;
+    background: #111011;
+}
+
+#Checkout .xbt-copy-fields > .xbt-copy-field {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas: "label button" "value button";
+    align-items: center;
+    gap: .25rem .75rem;
+    padding: .8rem .9rem;
+}
+
+.xbt-copy-field + .xbt-copy-field { border-top: 1px solid var(--xbt-border); }
+#Checkout .xbt-copy-field :is(dt, dd) { padding: 0; max-width: none; text-align: start; }
+.xbt-copy-field dt { grid-area: label; }
+.xbt-copy-value { grid-area: value; min-width: 0; }
+.xbt-copy-value code {
+    overflow-wrap: anywhere;
+    word-break: normal;
+    color: #e7d7cd;
+    font-size: .79rem;
+    user-select: all;
+}
+
+#Checkout .xbt-amount {
+    color: #fffbf8;
+    font-size: clamp(1.4rem, 4.5vw, 1.95rem);
+    font-weight: 750;
+    letter-spacing: -.035em;
+    line-height: 1.14;
+}
+
+.xbt-amount span + span { color: var(--xbt-warm); font-size: .68em; }
+.xbt-copy-action { grid-area: button; }
+
+.xbt-copy {
+    min-height: 2.75rem;
+    padding: .55rem .7rem;
+    border: 1px solid #69584e;
+    border-radius: .42rem;
+    color: #f6f1ed;
+    background: #251f1d;
+    font-size: .78rem;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.xbt-copy:hover { background: #352a26; }
+.xbt-copy-primary { color: #211510; background: var(--xbt-warm); border-color: var(--xbt-warm); }
+.xbt-copy-primary:hover { background: #ffc09a; }
+.xbt-copy .text-success { color: inherit !important; }
+.xbt-checkout :is(button, a, select):focus-visible { outline: 2px solid #ffd0b6; outline-offset: 3px; }
+
+.xbt-network-warning {
+    margin: .9rem 0 0;
+    padding: .65rem .75rem;
+    border-inline-start: 2px solid var(--xbt-warm);
+    border-radius: .25rem;
+    color: #e4cfc1;
+    background: #281f1c;
+    font-size: .82rem;
+    line-height: 1.5;
+}
+
+@media (max-width: 420px) {
+    #Checkout .xbt-copy-fields > .xbt-copy-field {
+        grid-template-columns: minmax(0, 1fr);
+        grid-template-areas: "label" "value" "button";
+        gap: .4rem;
+    }
+
+    .xbt-copy { width: 100%; }
+}

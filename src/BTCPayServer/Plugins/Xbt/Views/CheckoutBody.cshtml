@@ -1,0 +1,46 @@
+@using BTCPayServer.Plugins.Xbt
+
+<template id="@XbtCheckoutModelExtension.BodyComponent">
+    <div v-if="model.address" class="xbt-payment">
+        <div class="xbt-network">
+            <div>
+                <p class="xbt-field-label" text-translate="true">Payment network</p>
+                <h2>Bitcoin BLAKE2b</h2>
+            </div>
+            <span class="xbt-network-code">XBT / BTCB2</span>
+        </div>
+        <p v-if="model.isUnsetTopUp" class="xbt-instructions" text-translate="true">Select Bitcoin BLAKE2b in your wallet, then copy the receiving address below.</p>
+        <p v-else class="xbt-instructions" text-translate="true">Select Bitcoin BLAKE2b in your wallet, then copy the exact amount and address below.</p>
+        <dl class="xbt-copy-fields">
+            <div v-if="!model.isUnsetTopUp" class="xbt-copy-field">
+                <dt class="xbt-field-label" text-translate="true">Exact amount due</dt>
+                <dd class="xbt-copy-value xbt-amount"><span v-text="model.due"></span> <span>XBT</span></dd>
+                <dd class="xbt-copy-action">
+                    <button class="xbt-copy" type="button" :data-clipboard="model.due" data-clipboard-confirm="Amount copied" aria-live="polite" text-translate="true">Copy XBT amount</button>
+                </dd>
+            </div>
+            <div v-else class="xbt-copy-field">
+                <dt class="xbt-field-label" text-translate="true">Amount</dt>
+                <dd class="xbt-copy-value" text-translate="true">Any amount in XBT</dd>
+            </div>
+            <div class="xbt-copy-field">
+                <dt class="xbt-field-label" text-translate="true">Receiving address</dt>
+                <dd class="xbt-copy-value"><code dir="ltr" v-text="model.address"></code></dd>
+                <dd class="xbt-copy-action">
+                    <button class="xbt-copy xbt-copy-primary" type="button" :data-clipboard="model.address" data-clipboard-confirm="Address copied" aria-live="polite" text-translate="true">Copy XBT address</button>
+                </dd>
+            </div>
+        </dl>
+        <p class="xbt-network-warning" role="note">
+            <strong text-translate="true">Send only on XBT.</strong>
+            <span text-translate="true">SHA-256 Bitcoin (BTC) is a different network.</span>
+        </p>
+    </div>
+</template>
+
+<script>
+    Vue.component(@Safe.Json(XbtCheckoutModelExtension.BodyComponent), {
+        props: ['model'],
+        template: @Safe.Json("#" + XbtCheckoutModelExtension.BodyComponent)
+    });
+</script>

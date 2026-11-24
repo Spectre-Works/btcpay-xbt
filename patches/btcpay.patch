@@ -1,5 +1,5 @@
 diff --git a/BTCPayServer.Client/BTCPayServer.Client.csproj b/BTCPayServer.Client/BTCPayServer.Client.csproj
-index 9ca903273..98047eaa3 100644
+index 9ca9032..98047ea 100644
 --- a/BTCPayServer.Client/BTCPayServer.Client.csproj
 +++ b/BTCPayServer.Client/BTCPayServer.Client.csproj
 @@ -31,7 +31,7 @@
@@ -12,7 +12,7 @@ index 9ca903273..98047eaa3 100644
      </ItemGroup>
    <ItemGroup>
 diff --git a/BTCPayServer.Common/BTCPayNetworkProvider.cs b/BTCPayServer.Common/BTCPayNetworkProvider.cs
-index 7134774e8..88b2e1e7f 100644
+index 7134774..88b2e1e 100644
 --- a/BTCPayServer.Common/BTCPayNetworkProvider.cs
 +++ b/BTCPayServer.Common/BTCPayNetworkProvider.cs
 @@ -57,8 +57,8 @@ namespace BTCPayServer
@@ -27,7 +27,7 @@ index 7134774e8..88b2e1e7f 100644
              return network as T;
          }
 diff --git a/BTCPayServer.Common/BTCPayServer.Common.csproj b/BTCPayServer.Common/BTCPayServer.Common.csproj
-index 8761146c9..ab4ffff2c 100644
+index 8761146..ab4ffff 100644
 --- a/BTCPayServer.Common/BTCPayServer.Common.csproj
 +++ b/BTCPayServer.Common/BTCPayServer.Common.csproj
 @@ -2,7 +2,7 @@
@@ -40,7 +40,7 @@ index 8761146c9..ab4ffff2c 100644
    </ItemGroup>
  </Project>
 diff --git a/BTCPayServer.Rating/BTCPayServer.Rating.csproj b/BTCPayServer.Rating/BTCPayServer.Rating.csproj
-index 37989811b..941491af1 100644
+index 3798981..941491a 100644
 --- a/BTCPayServer.Rating/BTCPayServer.Rating.csproj
 +++ b/BTCPayServer.Rating/BTCPayServer.Rating.csproj
 @@ -6,7 +6,7 @@
@@ -53,7 +53,7 @@ index 37989811b..941491af1 100644
      <PackageReference Include="DigitalRuby.ExchangeSharp" Version="1.2.1" />
    </ItemGroup>
 diff --git a/BTCPayServer/BTCPayServer.csproj b/BTCPayServer/BTCPayServer.csproj
-index 5574a6bfb..3c8361536 100644
+index 5574a6b..3c83615 100644
 --- a/BTCPayServer/BTCPayServer.csproj
 +++ b/BTCPayServer/BTCPayServer.csproj
 @@ -34,7 +34,7 @@
@@ -65,8 +65,27 @@ index 5574a6bfb..3c8361536 100644
      <PackageReference Include="YamlDotNet" Version="18.1.0" />
      <PackageReference Include="BIP78.Sender" Version="0.2.5" />
      <PackageReference Include="BTCPayServer.Hwi" Version="2.0.6" />
+diff --git a/BTCPayServer/Components/MainLogo/Default.cshtml b/BTCPayServer/Components/MainLogo/Default.cshtml
+index 275cbfb..4d6dbf7 100644
+--- a/BTCPayServer/Components/MainLogo/Default.cshtml
++++ b/BTCPayServer/Components/MainLogo/Default.cshtml
+@@ -6,12 +6,9 @@
+ @if (Theme.LogoUrl is not null)
+ {
+ 	var logoUrl = await UriResolver.Resolve(this.Context.Request.GetAbsoluteRootUri(), Theme.LogoUrl);
+-	<img src="@logoUrl" alt="BTCPay Server" class="main-logo main-logo-custom @Model.CssClass" />
++	<img src="@logoUrl" alt="XBTPAY" class="main-logo main-logo-custom @Model.CssClass" />
+ }
+ else
+ {
+-    <svg xmlns="http://www.w3.org/2000/svg" role="img" alt="BTCPay Server" class="main-logo main-logo-btcpay @Model.CssClass">
+-        <use href="~/img/logo.svg#small" class="main-logo-btcpay--small"/>
+-        <use href="~/img/logo.svg#large" class="main-logo-btcpay--large"/>
+-    </svg>
++    <span class="main-logo xbtpay-main-logo xbtpay-wordmark @Model.CssClass">XBTPAY</span>
+ }
 diff --git a/BTCPayServer/Configuration/DefaultConfiguration.cs b/BTCPayServer/Configuration/DefaultConfiguration.cs
-index 3bc235b71..5fc82f945 100644
+index 3bc235b..5fc82f9 100644
 --- a/BTCPayServer/Configuration/DefaultConfiguration.cs
 +++ b/BTCPayServer/Configuration/DefaultConfiguration.cs
 @@ -170,6 +170,9 @@ namespace BTCPayServer.Configuration
@@ -79,8 +98,144 @@ index 3bc235b71..5fc82f945 100644
              services.AddSingleton(services.BootstrapServices.GetRequiredService<SelectedChains>());
              services.AddSingleton(services.BootstrapServices.GetRequiredService<NBXplorerNetworkProvider>());
              services.AddSingleton(services.BootstrapServices.GetRequiredService<Logs>());
+diff --git a/BTCPayServer/Controllers/UIInvoiceController.UI.cs b/BTCPayServer/Controllers/UIInvoiceController.UI.cs
+index fa14aef..44a2403 100644
+--- a/BTCPayServer/Controllers/UIInvoiceController.UI.cs
++++ b/BTCPayServer/Controllers/UIInvoiceController.UI.cs
+@@ -911,7 +911,7 @@ namespace BTCPayServer.Controllers
+                 ShowStoreHeader = storeBlob.ShowStoreHeader,
+                 NfcEnabled = storeBlob.NfcEnabled,
+                 StoreBranding = await StoreBrandingViewModel.CreateAsync(Request, _uriResolver, storeBlob),
+-                HtmlTitle = storeBlob.HtmlTitle ?? "BTCPay Invoice",
++                HtmlTitle = storeBlob.HtmlTitle ?? "XBTPAY Invoice",
+                 CelebratePayment = storeBlob.CelebratePayment,
+                 OnChainWithLnInvoiceFallback = storeBlob.OnChainWithLnInvoiceFallback,
+                 CryptoImage = Request.GetRelativePathOrAbsolute(GetPaymentMethodImage(paymentMethodId)),
+diff --git a/BTCPayServer/Plugins/Crowdfund/Views/Public/ViewCrowdfund.cshtml b/BTCPayServer/Plugins/Crowdfund/Views/Public/ViewCrowdfund.cshtml
+index f6d2d60..fcc11cb 100644
+--- a/BTCPayServer/Plugins/Crowdfund/Views/Public/ViewCrowdfund.cshtml
++++ b/BTCPayServer/Plugins/Crowdfund/Views/Public/ViewCrowdfund.cshtml
+@@ -242,9 +242,9 @@
+         </b-modal>
+         <footer class="store-footer">
+             <p class="text-muted" v-text="`Updated ${lastUpdated}`">Updated @Model.Info.LastUpdated</p>
+-            <a class="store-powered-by" href="https://btcpayserver.org" target="_blank" rel="noreferrer noopener">
++            <span class="store-powered-by">
+                 <span text-translate="true">Powered by</span> <partial name="_StoreFooterLogo" />
+-            </a>
++            </span>
+         </footer>
+     </div>
+ 
+diff --git a/BTCPayServer/Plugins/Forms/Views/View.cshtml b/BTCPayServer/Plugins/Forms/Views/View.cshtml
+index aab4d56..83a0756 100644
+--- a/BTCPayServer/Plugins/Forms/Views/View.cshtml
++++ b/BTCPayServer/Plugins/Forms/Views/View.cshtml
+@@ -47,9 +47,9 @@
+             </div>
+         </main>
+         <footer class="store-footer">
+-            <a class="store-powered-by" href="https://btcpayserver.org" target="_blank" rel="noreferrer noopener">
++            <span class="store-powered-by">
+                 <span text-translate="true">Powered by</span> <partial name="_StoreFooterLogo" />
+-            </a>
++            </span>
+         </footer>
+     </div>
+     <partial name="LayoutFoot" />
+diff --git a/BTCPayServer/Plugins/PointOfSale/Views/Public/Cart.cshtml b/BTCPayServer/Plugins/PointOfSale/Views/Public/Cart.cshtml
+index f05b9c8..42b1d6e 100644
+--- a/BTCPayServer/Plugins/PointOfSale/Views/Public/Cart.cshtml
++++ b/BTCPayServer/Plugins/PointOfSale/Views/Public/Cart.cshtml
+@@ -90,9 +90,9 @@
+                 </div>
+             </main>
+             <footer class="store-footer" v-pre>
+-                <a class="store-powered-by" href="https://btcpayserver.org" target="_blank" rel="noreferrer noopener">
++                <span class="store-powered-by">
+                     <span text-translate="true">Powered by</span> <partial name="_StoreFooterLogo" />
+-                </a>
++                </span>
+             </footer>
+         </div>
+     </div>
+diff --git a/BTCPayServer/Plugins/PointOfSale/Views/Public/Light.cshtml b/BTCPayServer/Plugins/PointOfSale/Views/Public/Light.cshtml
+index 818ff18..d9cf5d4 100644
+--- a/BTCPayServer/Plugins/PointOfSale/Views/Public/Light.cshtml
++++ b/BTCPayServer/Plugins/PointOfSale/Views/Public/Light.cshtml
+@@ -29,8 +29,8 @@
+         <partial name="/Plugins/PointOfSale/Views/Public/VueLight.cshtml" model="Model" />
+     }
+     <footer class="store-footer" v-pre>
+-        <a class="store-powered-by" href="https://btcpayserver.org" target="_blank" rel="noreferrer noopener">
++        <span class="store-powered-by">
+             <span text-translate="true">Powered by</span> <partial name="_StoreFooterLogo" />
+-        </a>
++        </span>
+     </footer>
+ </div>
+diff --git a/BTCPayServer/Plugins/PointOfSale/Views/Public/Print.cshtml b/BTCPayServer/Plugins/PointOfSale/Views/Public/Print.cshtml
+index a3dda50..90776c2 100644
+--- a/BTCPayServer/Plugins/PointOfSale/Views/Public/Print.cshtml
++++ b/BTCPayServer/Plugins/PointOfSale/Views/Public/Print.cshtml
+@@ -139,8 +139,8 @@ else
+         </div>
+     </main>
+     <footer class="store-footer d-print-none">
+-        <a class="store-powered-by" href="https://btcpayserver.org" target="_blank" rel="noreferrer noopener">
++        <span class="store-powered-by">
+             <span text-translate="true">Powered by</span> <partial name="_StoreFooterLogo" />
+-        </a>
++        </span>
+     </footer>
+ </div>
+diff --git a/BTCPayServer/Plugins/PointOfSale/Views/Public/Static.cshtml b/BTCPayServer/Plugins/PointOfSale/Views/Public/Static.cshtml
+index 6a3a234..2d72901 100644
+--- a/BTCPayServer/Plugins/PointOfSale/Views/Public/Static.cshtml
++++ b/BTCPayServer/Plugins/PointOfSale/Views/Public/Static.cshtml
+@@ -112,8 +112,8 @@
+         </div>
+     </main>
+     <footer class="store-footer">
+-        <a class="store-powered-by" href="https://btcpayserver.org" target="_blank" rel="noreferrer noopener">
++        <span class="store-powered-by">
+             <span text-translate="true">Powered by</span> <partial name="_StoreFooterLogo" />
+-        </a>
++        </span>
+     </footer>
+ </div>
+diff --git a/BTCPayServer/Plugins/PointOfSale/Views/Public/_Layout.cshtml b/BTCPayServer/Plugins/PointOfSale/Views/Public/_Layout.cshtml
+index 3dcfca9..5993b9b 100644
+--- a/BTCPayServer/Plugins/PointOfSale/Views/Public/_Layout.cshtml
++++ b/BTCPayServer/Plugins/PointOfSale/Views/Public/_Layout.cshtml
+@@ -22,7 +22,7 @@
+         }
+         using var reader = new StreamReader(manifest.CreateReadStream());
+         var jObject = JObject.Parse(await reader.ReadToEndAsync());
+-        var serverName = string.IsNullOrWhiteSpace(settings.ServerName) ? "BTCPay Server" : settings.ServerName;
++        var serverName = string.IsNullOrWhiteSpace(settings.ServerName) ? "XBTPAY" : settings.ServerName;
+         jObject["short_name"] = title;
+         jObject["name"] = $"{serverName}: {title}";
+         foreach (var jToken in jObject["icons"]!)
+diff --git a/BTCPayServer/Plugins/Subscriptions/Views/UIPlanCheckout/PlanCheckout.cshtml b/BTCPayServer/Plugins/Subscriptions/Views/UIPlanCheckout/PlanCheckout.cshtml
+index 6cb6589..639553a 100644
+--- a/BTCPayServer/Plugins/Subscriptions/Views/UIPlanCheckout/PlanCheckout.cshtml
++++ b/BTCPayServer/Plugins/Subscriptions/Views/UIPlanCheckout/PlanCheckout.cshtml
+@@ -253,10 +253,10 @@
+                     <!-- Security Badges -->
+                     <div class="security-badges">
+                         <div class="security-badge store-footer">
+-                            <a class="store-powered-by" href="https://btcpayserver.org" target="_blank" rel="noreferrer noopener">
++                            <span class="store-powered-by">
+                                 Powered by
+                                 <partial name="_StoreFooterLogo" />
+-                            </a>
++                            </span>
+                         </div>
+                     </div>
+                 </div>
 diff --git a/BTCPayServer/Plugins/Wallets/Controllers/GreenfieldStoreOnChainPaymentMethodsController.WalletGeneration.cs b/BTCPayServer/Plugins/Wallets/Controllers/GreenfieldStoreOnChainPaymentMethodsController.WalletGeneration.cs
-index b8fa37c9d..195eedfec 100644
+index b8fa37c..195eedf 100644
 --- a/BTCPayServer/Plugins/Wallets/Controllers/GreenfieldStoreOnChainPaymentMethodsController.WalletGeneration.cs
 +++ b/BTCPayServer/Plugins/Wallets/Controllers/GreenfieldStoreOnChainPaymentMethodsController.WalletGeneration.cs
 @@ -27,6 +27,8 @@ namespace BTCPayServer.Controllers.Greenfield
@@ -93,7 +248,7 @@ index b8fa37c9d..195eedfec 100644
              if (!walletProvider.IsAvailable(network))
              {
 diff --git a/BTCPayServer/Plugins/Wallets/Controllers/UIStoreOnChainWalletsController.cs b/BTCPayServer/Plugins/Wallets/Controllers/UIStoreOnChainWalletsController.cs
-index e265e8403..674a63e37 100644
+index e265e84..674a63e 100644
 --- a/BTCPayServer/Plugins/Wallets/Controllers/UIStoreOnChainWalletsController.cs
 +++ b/BTCPayServer/Plugins/Wallets/Controllers/UIStoreOnChainWalletsController.cs
 @@ -778,7 +778,10 @@ public class UIStoreOnChainWalletsController(
@@ -109,7 +264,7 @@ index e265e8403..674a63e37 100644
  
      private async Task<string> ReadAllText(IFormFile file)
 diff --git a/BTCPayServer/TagHelpers/CurrenciesSuggestionsTagHelper.cs b/BTCPayServer/TagHelpers/CurrenciesSuggestionsTagHelper.cs
-index 9f7375d76..d53eae0d0 100644
+index 9f7375d..d53eae0 100644
 --- a/BTCPayServer/TagHelpers/CurrenciesSuggestionsTagHelper.cs
 +++ b/BTCPayServer/TagHelpers/CurrenciesSuggestionsTagHelper.cs
 @@ -25,6 +25,14 @@ namespace BTCPayServer.TagHelpers
@@ -127,8 +282,259 @@ index 9f7375d76..d53eae0d0 100644
              // move most often used currencies up
              int pos = 0;
              InsertAt(currencies, "USD", pos++);
+diff --git a/BTCPayServer/Views/Shared/LayoutHead.cshtml b/BTCPayServer/Views/Shared/LayoutHead.cshtml
+index 0671cce..94d5fa2 100644
+--- a/BTCPayServer/Views/Shared/LayoutHead.cshtml
++++ b/BTCPayServer/Views/Shared/LayoutHead.cshtml
+@@ -42,16 +42,16 @@
+ <link href="~/main/fonts/OpenSans.css" asp-append-version="true"  rel="stylesheet" />
+ 
+ <partial name="LayoutHeadTheme" />
++<link href="~/main/xbtpay.css" asp-append-version="true" rel="stylesheet" />
++<link rel="icon" href="~/main/xbtpay-icon.png" type="image/png">
++<link rel="apple-touch-icon" href="~/main/xbtpay-apple-touch-icon.png">
+ @if (storeBranding != null)
+ {
+     <partial name="LayoutHeadStoreBranding" model="storeBranding" />
+ }
+ else
+ {
+-    <meta name="theme-color" content="#51B13E">
+-    <link rel="icon" href="~/favicon.ico">
+-    <link rel="apple-touch-icon" href="~/img/icons/icon-512x512.png">
+-    <link rel="apple-touch-startup-image" href="~/img/splash.png">
++    <meta name="theme-color" content="#0b0b0c">
+ }
+ @* Non-JS *@
+ <noscript>
+diff --git a/BTCPayServer/Views/Shared/_LayoutSignedOut.cshtml b/BTCPayServer/Views/Shared/_LayoutSignedOut.cshtml
+index 359d954..a28425a 100644
+--- a/BTCPayServer/Views/Shared/_LayoutSignedOut.cshtml
++++ b/BTCPayServer/Views/Shared/_LayoutSignedOut.cshtml
+@@ -3,6 +3,7 @@
+ @inject SettingsRepository SettingsRepository
+ @{
+     Layout = "_LayoutSimple";
++    ViewData["ShowFooter"] = false;
+     ViewBag.ShowTitle ??= true;
+     ViewBag.ShowLeadText ??= false;
+     // obfuscate email on public page, decode via JS (see below)
+@@ -47,12 +48,11 @@
+             <vc:main-logo />
+         </a>
+ 
+-		<h1 data-testid="header" class="h2 mb-3">@ViewLocalizer["Welcome to {0}", string.IsNullOrWhiteSpace(settings.ServerName) ? "BTCPay Server" : settings.ServerName]</h1>
++		<h1 data-testid="header" class="h2 mb-3">@ViewLocalizer["Welcome to {0}", string.IsNullOrWhiteSpace(settings.ServerName) ? "XBTPAY" : settings.ServerName]</h1>
+         @if (ViewBag.ShowLeadText)
+         {
+             <p class="lead">
+-                <span class="d-sm-block" text-translate="true">A self-hosted, open-source bitcoin payment processor.</span>
+-                <span class="d-sm-block" text-translate="true">It is secure, private, censorship-resistant and free.</span>
++                <span text-translate="true">A self-hosted payment server for Bitcoin BLAKE2b (XBT).</span>
+             </p>
+         }
+ 
+@@ -83,12 +83,3 @@
+         </script>
+     }
+ }
+-
+-<div class="row justify-content-center mt-5">
+-    <div class="col">
+-        <partial name="_BTCPaySupporters"/>
+-    </div>
+-</div>
+-
+-
+-
+diff --git a/BTCPayServer/Views/Shared/_StoreFooterLogo.cshtml b/BTCPayServer/Views/Shared/_StoreFooterLogo.cshtml
+index 0f0c0c3..b67151c 100644
+--- a/BTCPayServer/Views/Shared/_StoreFooterLogo.cshtml
++++ b/BTCPayServer/Views/Shared/_StoreFooterLogo.cshtml
+@@ -1 +1 @@
+-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 84" role="img" alt="BTCPay Server"><path d="M5.206 83.433a4.86 4.86 0 01-4.859-4.861V5.431a4.86 4.86 0 119.719 0v73.141a4.861 4.861 0 01-4.86 4.861" fill="currentColor" class="logo-brand-light"/><path d="M5.209 83.433a4.862 4.862 0 01-2.086-9.253L32.43 60.274 2.323 38.093a4.861 4.861 0 015.766-7.826l36.647 26.999a4.864 4.864 0 01-.799 8.306L7.289 82.964a4.866 4.866 0 01-2.08.469" fill="currentColor" class="logo-brand-medium"/><path d="M5.211 54.684a4.86 4.86 0 01-2.887-8.774L32.43 23.73 3.123 9.821a4.861 4.861 0 014.166-8.784l36.648 17.394a4.86 4.86 0 01.799 8.305l-36.647 27a4.844 4.844 0 01-2.878.948" fill="currentColor" class="logo-brand-light"/><path d="M10.066 31.725v20.553L24.01 42.006z" fill="currentColor" class="logo-brand-dark"/><path d="M10.066 5.431A4.861 4.861 0 005.206.57 4.86 4.86 0 00.347 5.431v61.165h9.72V5.431h-.001z" fill="currentColor" class="logo-brand-light"/><path d="M74.355 41.412c3.114.884 4.84 3.704 4.84 7.238 0 5.513-3.368 8.082-7.955 8.082H60.761V27.271h9.259c4.504 0 7.997 2.146 7.997 7.743 0 2.821-1.179 5.43-3.662 6.398m-4.293-.716c3.324 0 6.018-1.179 6.018-5.724 0-4.586-2.776-5.808-6.145-5.808h-7.197v11.531h7.324v.001zm1.052 14.099c3.366 0 6.06-1.768 6.06-6.145 0-4.713-3.072-6.144-6.901-6.144h-7.534v12.288h8.375v.001zM98.893 27.271v1.81h-8.122v27.651h-1.979V29.081h-8.123v-1.81zM112.738 26.85c5.01 0 9.554 2.524 10.987 8.543h-1.895c-1.348-4.923-5.303-6.732-9.134-6.732-6.944 0-10.605 5.681-10.605 13.341 0 8.08 3.661 13.256 10.646 13.256 4.125 0 7.828-1.85 9.26-7.279h1.895c-1.264 6.271-6.229 9.174-11.154 9.174-7.87 0-12.583-5.808-12.583-15.15 0-8.966 4.969-15.153 12.583-15.153M138.709 27.271c5.091 0 8.795 3.326 8.795 9.764 0 6.06-3.704 9.722-8.795 9.722h-7.746v9.976h-1.935V27.271h9.681zm0 17.549c3.745 0 6.816-2.397 6.816-7.827 0-5.429-2.947-7.869-6.816-7.869h-7.746V44.82h7.746zM147.841 56.732v-.255l11.741-29.29h.885l11.615 29.29v.255h-2.062l-3.322-8.501H153.27l-3.324 8.501h-2.105zm12.164-26.052l-6.059 15.697h12.078l-6.019-15.697zM189.551 27.271h2.104v.293l-9.176 16.92v12.248h-2.02V44.484l-9.216-16.961v-.252h2.147l3.997 7.492 4.043 7.786h.04l4.081-7.786z" fill="currentColor" class="logo-brand-text"/></svg>
++<strong class="xbtpay-wordmark">XBTPAY</strong>
+diff --git a/BTCPayServer/Views/UIError/500.cshtml b/BTCPayServer/Views/UIError/500.cshtml
+index bfe1166..377deca 100644
+--- a/BTCPayServer/Views/UIError/500.cshtml
++++ b/BTCPayServer/Views/UIError/500.cshtml
+@@ -3,12 +3,5 @@
+     ViewData.SetTitle("500 - Internal Server Error");
+ }
+ 
+-Whoops, something really went wrong! <a href="https://x.com/mrkukks" rel="noreferrer noopener">Mr Kukks</a> is so sorry.
+-<br /><br />
+-<a href="https://x.com/mrkukks" target="_blank" rel="noreferrer noopener">
+-    <img src="~/img/errorpages/500_mrkukks.jpg" alt="Mr Kukks puppy eyes" title="The most innocent look you'll ever see" asp-append-version="true" />
+-</a>
+-<br /><br />
+-Consult server log and consider submitting issue on BTCPayServer GitHub.
+-<br /><br />
+-<a href="/">Navigate back to home</a>.
++<p text-translate="true">XBTPAY couldn’t load this page. Try again or contact the server operator if the problem continues.</p>
++<a href="/" text-translate="true">Return to the homepage</a>
+diff --git a/BTCPayServer/Views/UIError/_LayoutError.cshtml b/BTCPayServer/Views/UIError/_LayoutError.cshtml
+index 9dc491b..52b7507 100644
+--- a/BTCPayServer/Views/UIError/_LayoutError.cshtml
++++ b/BTCPayServer/Views/UIError/_LayoutError.cshtml
+@@ -1,5 +1,6 @@
+ @{
+     Layout = "_LayoutSimple";
++    ViewData["ShowFooter"] = false;
+ }
+ 
+ <style>
+@@ -19,7 +20,4 @@
+         @RenderBody()
+     </div>
+ 
+-    <hr class="primary my-5" />
+-
+-    <partial name="_BTCPaySupporters" />    
+ </div>
+diff --git a/BTCPayServer/Views/UIInvoice/Checkout.cshtml b/BTCPayServer/Views/UIInvoice/Checkout.cshtml
+index ab2c405..49f49f4 100644
+--- a/BTCPayServer/Views/UIInvoice/Checkout.cshtml
++++ b/BTCPayServer/Views/UIInvoice/Checkout.cshtml
+@@ -35,7 +35,7 @@
+     }
+ </head>
+ <body class="min-vh-100">
+-    <div id="Checkout" class="public-page-wrap" v-cloak>
++    <div id="Checkout" class="public-page-wrap" :class="{ 'xbt-checkout': pmId === 'XBT-CHAIN' }" v-cloak>
+ 		@if (Model.ShowStoreHeader)
+ 		{
+ 			<partial name="_StoreHeader" model="(Model.StoreName, Model.StoreBranding)" />
+@@ -48,7 +48,7 @@
+             </nav>
+             <section id="payment" v-if="isActive">
+                 <div v-if="srvModel.itemDesc && srvModel.itemDesc !== srvModel.storeName" v-text="srvModel.itemDesc" class="fw-semibold text-center text-break text-muted mb-3"></div>
+-                <div class="d-flex justify-content-center mt-1 text-center">
++                <div v-if="pmId !== 'XBT-CHAIN' || !srvModel.address" class="d-flex justify-content-center mt-1 text-center">
+                     @if (Model.IsUnsetTopUp)
+                     {
+                         <h2 id="AmountDue" v-t="'any_amount'"></h2>
+@@ -71,20 +71,6 @@
+                         <div v-if="showPaymentDueInfo" v-html="replaceNewlines($t('still_due', { amount: `${srvModel.due} ${srvModel.paymentMethodCurrency}` }))"></div>
+                     </div>
+                 </div>
+-                <button id="DetailsToggle" class="d-flex align-items-center gap-2 btn btn-link payment-details-button mb-2" type="button" :aria-expanded="displayPaymentDetails ? 'true' : 'false'" v-on:click="displayPaymentDetails = !displayPaymentDetails">
+-                    <span class="fw-semibold" v-t="'view_details'"></span>
+-                    <vc:icon symbol="caret-down" />
+-                </button>
+-                <div id="PaymentDetails" class="payment-details" v-collapsible="displayPaymentDetails">
+-                    <payment-details
+-                        :srv-model="srvModel"
+-                        :is-active="isActive"
+-                        :order-amount="orderAmount"
+-                        :paid="paid"
+-                        :due="due"
+-                        :show-recommended-fee="showRecommendedFee"
+-                        class="pb-4" />
+-                </div>
+                 <div class="mt-3 mb-2 payment-methods-wrapper">
+                     <h6 class="text-center mb-3" v-t="'pay_with'"></h6>
+                     <div class="btcpay-pills d-flex flex-wrap align-items-center justify-content-center gap-2 pb-2">
+@@ -107,7 +93,21 @@
+                            v-on:start-nfc-scan="startNFCScan"
+                            v-on:handle-nfc-data="handleNFCData"
+                            v-on:handle-nfc-error="handleNFCError"
+-                           v-on:handle-nfc-result="handleNFCResult" />
++                           v-on:handle-nfc-result="handleNFCResult"></component>
++                <button id="DetailsToggle" aria-controls="PaymentDetails" class="d-flex align-items-center gap-2 btn btn-link payment-details-button mb-2" type="button" :aria-expanded="displayPaymentDetails ? 'true' : 'false'" v-on:click="displayPaymentDetails = !displayPaymentDetails">
++                    <span class="fw-semibold" v-t="'view_details'"></span>
++                    <vc:icon symbol="caret-down" />
++                </button>
++                <div id="PaymentDetails" class="payment-details" v-collapsible="displayPaymentDetails">
++                    <payment-details
++                        :srv-model="srvModel"
++                        :is-active="isActive"
++                        :order-amount="orderAmount"
++                        :paid="paid"
++                        :due="due"
++                        :show-recommended-fee="showRecommendedFee"
++                        class="pb-4" />
++                </div>
+             </section>
+             <section id="result" v-else>
+                 <div v-if="isProcessing" id="processing" key="processing">
+@@ -233,10 +233,10 @@
+         }
+         <footer class="store-footer">
+             <a v-if="srvModel.storeSupportUrl" class="mb-4" :href="srvModel.storeSupportUrl" v-t="'contact_us'" id="ContactLink"></a>
+-            <a class="store-powered-by" href="https://btcpayserver.org" target="_blank" rel="noreferrer noopener">
++            <span class="store-powered-by">
+                 {{$t("powered_by")}} <partial name="_StoreFooterLogo" />
+-            </a>
+-            <select asp-for="DefaultLang" asp-items="@LangService.GetLanguageSelectListItems()" class="form-select" v-on:change="changeLanguage"></select>
++            </span>
++            <select aria-label="Language" asp-for="DefaultLang" asp-items="@LangService.GetLanguageSelectListItems()" class="form-select" v-on:change="changeLanguage"></select>
+         </footer>
+     </div>
+     <noscript>
+diff --git a/BTCPayServer/Views/UIInvoice/InvoiceReceipt.cshtml b/BTCPayServer/Views/UIInvoice/InvoiceReceipt.cshtml
+index 052a36f..c73b47d 100644
+--- a/BTCPayServer/Views/UIInvoice/InvoiceReceipt.cshtml
++++ b/BTCPayServer/Views/UIInvoice/InvoiceReceipt.cshtml
+@@ -201,9 +201,9 @@
+                     Admin details
+                 </a>
+             </p>
+-            <a class="store-powered-by" href="https://btcpayserver.org" target="_blank" rel="noreferrer noopener">
++            <span class="store-powered-by">
+                 <span text-translate="true">Powered by</span> <partial name="_StoreFooterLogo" />
+-            </a>
++            </span>
+         </footer>
+     </div>
+     <partial name="LayoutFoot"/>
+diff --git a/BTCPayServer/Views/UIInvoice/InvoiceReceiptPrint.cshtml b/BTCPayServer/Views/UIInvoice/InvoiceReceiptPrint.cshtml
+index a53edbc..5e807db 100644
+--- a/BTCPayServer/Views/UIInvoice/InvoiceReceiptPrint.cshtml
++++ b/BTCPayServer/Views/UIInvoice/InvoiceReceiptPrint.cshtml
+@@ -287,7 +287,7 @@
+         }
+     </div>
+     <div class="store-footer p-3">
+-        <a class="store-powered-by" href="https://btcpayserver.org" target="_blank" rel="noreferrer noopener" style="color:#000;"><span text-translate="true">Powered by</span> <partial name="_StoreFooterLogo" /></a>
++        <span class="store-powered-by" style="color:#000;"><span text-translate="true">Powered by</span> <partial name="_StoreFooterLogo" /></span>
+     </div>
+     <hr class="w-100 my-0 bg-none"/>
+ </center>
+diff --git a/BTCPayServer/Views/UIPaymentRequest/ViewPaymentRequest.cshtml b/BTCPayServer/Views/UIPaymentRequest/ViewPaymentRequest.cshtml
+index 674e7c6..593a864 100644
+--- a/BTCPayServer/Views/UIPaymentRequest/ViewPaymentRequest.cshtml
++++ b/BTCPayServer/Views/UIPaymentRequest/ViewPaymentRequest.cshtml
+@@ -329,9 +329,9 @@
+                     </form>
+                 </div>
+             }
+-            <a class="store-powered-by" href="https://btcpayserver.org" target="_blank" rel="noreferrer noopener">
++            <span class="store-powered-by">
+                 <span text-translate="true">Powered by</span> <partial name="_StoreFooterLogo" />
+-            </a>
++            </span>
+         </footer>
+     </div>
+     <partial name="LayoutFoot"/>
+diff --git a/BTCPayServer/Views/UIPullPayment/ViewPullPayment.cshtml b/BTCPayServer/Views/UIPullPayment/ViewPullPayment.cshtml
+index 7e05b42..b5fb2fa 100644
+--- a/BTCPayServer/Views/UIPullPayment/ViewPullPayment.cshtml
++++ b/BTCPayServer/Views/UIPullPayment/ViewPullPayment.cshtml
+@@ -206,9 +206,9 @@
+                 </a>
+             </p>
+             <vc:ui-extension-point location="pullpayment-store-footer" model="@Model"></vc:ui-extension-point>
+-            <a class="store-powered-by" href="https://btcpayserver.org" target="_blank" rel="noreferrer noopener">
++            <span class="store-powered-by">
+                 <span text-translate="true">Powered by</span> <partial name="_StoreFooterLogo" />
+-            </a>
++            </span>
+         </footer>
+     </div>
+     <partial name="ShowQR" />
 diff --git a/Dockerfile b/Dockerfile
-index 3e01a8474..e5ee5870b 100644
+index 3e01a84..e5ee587 100644
 --- a/Dockerfile
 +++ b/Dockerfile
 @@ -2,6 +2,7 @@ FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:10.0.403-noble AS bu
@@ -140,7 +546,7 @@ index 3e01a8474..e5ee5870b 100644
  COPY BTCPayServer.Abstractions/BTCPayServer.Abstractions.csproj BTCPayServer.Abstractions/BTCPayServer.Abstractions.csproj
  COPY BTCPayServer/BTCPayServer.csproj BTCPayServer/BTCPayServer.csproj
 diff --git a/nuget.config b/nuget.config
-index 071facf95..060a195fe 100644
+index 071facf..060a195 100644
 --- a/nuget.config
 +++ b/nuget.config
 @@ -2,6 +2,7 @@

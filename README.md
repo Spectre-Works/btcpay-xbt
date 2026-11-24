@@ -40,6 +40,12 @@ Hosted XBT checkout provides copy buttons for the address and amount. XBT and
 SHA-256 BTC share address encodings and the `bitcoin:` URI scheme, so the XBT
 payment method suppresses the wallet link and payment QR. Instruct customers to
 select Bitcoin BLAKE2b (XBT/BTCB2) in their wallet before sending.
+
+XBTPAY is the customer-facing name in the hosted checkout, receipts, and
+signed-out pages. The XBT checkout uses the store's configured logo and keeps
+the amount, receiving address, and network warning together. The payment API
+and webhooks use the original upstream BTCPay protocol.
+
 An invoice-reader Greenfield key can query the invoice's `xbt-chain` endpoint
 for indexed outputs and current confirmations on the verified XBT chain. The
 endpoint keeps using the original account and address after invoice expiration.

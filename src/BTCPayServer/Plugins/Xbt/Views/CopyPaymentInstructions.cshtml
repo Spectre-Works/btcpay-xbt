@@ -1,8 +1,0 @@
-<div v-if="model.paymentMethodId === 'XBT-CHAIN' && model.address" class="alert alert-warning text-start mb-3" role="note">
-    <p class="fw-semibold mb-2">Pay on the Bitcoin BLAKE2b (XBT/BTCB2) network</p>
-    <p class="mb-3">Open your XBT-compatible wallet and select Bitcoin BLAKE2b. Copy the address and exact XBT amount into your wallet. A payment on the SHA-256 Bitcoin (BTC) network will leave this invoice unpaid.</p>
-    <div class="d-flex flex-wrap gap-2">
-        <button class="btn btn-secondary clipboard-button" type="button" :data-clipboard="model.address">Copy XBT address</button>
-        <button class="btn btn-secondary clipboard-button" type="button" :data-clipboard="model.due">Copy XBT amount</button>
-    </div>
-</div>
